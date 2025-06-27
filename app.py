@@ -16,8 +16,15 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
 logger = logging.getLogger(__name__)
+
+# Early startup logging
+logger.info("Hub Helper Flask application initializing...")
 
 # Configuration
 PROJECTS_PATH = os.environ.get('PROJECTS_PATH', '/projects')
@@ -676,3 +683,34 @@ def cleanup_old_containers():
         
     except Exception as e:
         logger.error(f"Auto-cleanup failed: {e}")
+
+if __name__ == '__main__':
+    # Configure logging for production
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('/app/data/hub-helper.log')
+        ]
+    )
+    
+    logger.info("Starting Hub Helper application...")
+    logger.info(f"Projects path: {PROJECTS_PATH}")
+    logger.info(f"Data directory: {DATA_DIR}")
+    
+    # Check if required environment variables are set
+    if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET:
+        logger.warning("GitHub OAuth credentials not configured - OAuth login will not work")
+    else:
+        logger.info("GitHub OAuth configured successfully")
+    
+    # Check if projects directory exists
+    if os.path.exists(PROJECTS_PATH):
+        logger.info(f"Projects directory found: {PROJECTS_PATH}")
+    else:
+        logger.warning(f"Projects directory not found: {PROJECTS_PATH}")
+    
+    # Start the Flask application
+    logger.info("Starting Flask server on 0.0.0.0:5414")
+    app.run(host='0.0.0.0', port=5414, debug=False)
