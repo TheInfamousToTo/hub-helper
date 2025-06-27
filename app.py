@@ -237,10 +237,14 @@ def deploy():
     project_name = data.get('project_name')
     github_repo = data.get('github_repo')
     dockerhub_repo = data.get('dockerhub_repo')
-    commit_message = data.get('commit_message', f'Update {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+    project_version = data.get('project_version', 'v1.0.0')
+    commit_message = data.get('commit_message', f'Release {project_name} {project_version}')
     
     if not project_name:
         return jsonify({'error': 'Project name is required'}), 400
+    
+    if not github_repo and not dockerhub_repo:
+        return jsonify({'error': 'At least one deployment target is required'}), 400
     
     project_path = os.path.join(PROJECTS_PATH, project_name)
     if not os.path.exists(project_path):
@@ -251,12 +255,12 @@ def deploy():
         
         # Step 1: Git operations
         if github_repo:
-            git_result = push_to_github(project_path, github_repo, commit_message)
+            git_result = push_to_github(project_path, github_repo, commit_message, project_version)
             result['steps'].append(git_result)
         
         # Step 2: Docker operations  
         if dockerhub_repo:
-            docker_result = push_to_dockerhub(project_path, dockerhub_repo)
+            docker_result = push_to_dockerhub(project_path, dockerhub_repo, project_version)
             result['steps'].append(docker_result)
         
         result['success'] = True
@@ -281,8 +285,8 @@ def get_project_folders():
                 })
     return projects
 
-def push_to_github(project_path, repo_name, commit_message):
-    """Push project to GitHub"""
+def push_to_github(project_path, repo_name, commit_message, project_version='v1.0.0'):
+    """Push project to GitHub with version tagging"""
     try:
         # Fix Git safe directory issue first
         subprocess.run(['git', 'config', '--global', '--add', 'safe.directory', project_path], 
@@ -301,6 +305,11 @@ def push_to_github(project_path, repo_name, commit_message):
             repo.config_writer().set_value("user", "name", "Hub Helper").release()
             repo.config_writer().set_value("user", "email", "hub-helper@automation.local").release()
         
+        # Create or update version file in the project
+        version_file_path = os.path.join(project_path, 'version')
+        with open(version_file_path, 'w') as f:
+            f.write(project_version)
+        
         # Add all files
         repo.git.add('.')
         
@@ -314,6 +323,20 @@ def push_to_github(project_path, repo_name, commit_message):
                 committed = False
             else:
                 raise e
+        
+        # Create Git tag for version
+        try:
+            # Delete existing tag if it exists
+            existing_tags = [tag.name for tag in repo.tags]
+            if project_version in existing_tags:
+                repo.delete_tag(project_version)
+            
+            # Create new tag
+            repo.create_tag(project_version, message=f'Release {project_version}')
+            tagged = True
+        except Exception as e:
+            logger.warning(f"Failed to create tag {project_version}: {e}")
+            tagged = False
         
         # Set remote if not exists
         github_token = session.get('github_token')
@@ -329,11 +352,28 @@ def push_to_github(project_path, repo_name, commit_message):
         current_branch = repo.active_branch.name if repo.heads else 'main'
         origin.push(current_branch)
         
+        # Push tags
+        if tagged:
+            try:
+                origin.push(tags=True)
+                tag_pushed = True
+            except Exception as e:
+                logger.warning(f"Failed to push tags: {e}")
+                tag_pushed = False
+        else:
+            tag_pushed = False
+        
+        message = f'Successfully pushed to {repo_name}'
+        if tagged and tag_pushed:
+            message += f' with tag {project_version}'
+        
         return {
             'step': 'GitHub Push',
             'success': True,
-            'message': f'Successfully pushed to {repo_name}',
-            'committed': committed
+            'message': message,
+            'committed': committed,
+            'tagged': tagged and tag_pushed,
+            'version': project_version
         }
         
     except Exception as e:
@@ -343,8 +383,8 @@ def push_to_github(project_path, repo_name, commit_message):
             'error': str(e)
         }
 
-def push_to_dockerhub(project_path, repo_name):
-    """Build and push Docker image to Docker Hub"""
+def push_to_dockerhub(project_path, repo_name, project_version='v1.0.0'):
+    """Build and push Docker image to Docker Hub with version tagging"""
     try:
         dockerfile_path = os.path.join(project_path, 'Dockerfile')
         if not os.path.exists(dockerfile_path):
@@ -364,22 +404,31 @@ def push_to_dockerhub(project_path, repo_name):
             registry='https://index.docker.io/v1/'
         )
         
+        # Clean version for Docker tag (remove 'v' prefix if present)
+        docker_version = project_version.lstrip('v')
+        
+        # Build image with multiple tags
+        image_name = f"{dockerhub_creds['username']}/{repo_name}"
+        
         # Build image
         image, build_logs = client.images.build(
             path=project_path,
-            tag=f"{dockerhub_creds['username']}/{repo_name}:latest"
+            tag=f"{image_name}:latest"
         )
         
-        # Push image
-        push_logs = client.images.push(
-            f"{dockerhub_creds['username']}/{repo_name}",
-            tag='latest'
-        )
+        # Tag with version
+        image.tag(image_name, docker_version)
+        
+        # Push both latest and version tags
+        push_logs_latest = client.images.push(image_name, tag='latest')
+        push_logs_version = client.images.push(image_name, tag=docker_version)
         
         return {
             'step': 'Docker Push',
             'success': True,
-            'message': f'Successfully pushed to {dockerhub_creds["username"]}/{repo_name}:latest'
+            'message': f'Successfully pushed to {image_name}:latest and {image_name}:{docker_version}',
+            'version': docker_version,
+            'tags': ['latest', docker_version]
         }
         
     except Exception as e:

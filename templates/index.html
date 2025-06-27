@@ -148,6 +148,26 @@
             border-color: #1f6feb;
             color: #79c0ff;
         }
+        .form-check-input:checked {
+            background-color: #238636;
+            border-color: #238636;
+        }
+        .form-check-input:focus {
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+        }
+        .form-check-label {
+            color: #e6edf3;
+        }
+        .github-config, .dockerhub-config {
+            margin-left: 1.5rem;
+            padding-left: 1rem;
+            border-left: 2px solid #30363d;
+        }
+        .github-config.disabled, .dockerhub-config.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -231,34 +251,66 @@
                             <label class="form-label">Project Name</label>
                             <input type="text" class="form-control" id="project-name" readonly>
                         </div>
-                        
-                        <div class="row">
+
+                        <div class="row mb-3">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">
-                                        <i class="fab fa-github"></i> GitHub Repository
-                                    </label>
-                                    <input type="text" class="form-control" id="github-repo" 
-                                           placeholder="username/repository-name">
-                                    <div class="form-text">Format: username/repository-name</div>
+                                    <label class="form-label">Project Version</label>
+                                    <input type="text" class="form-control" id="project-version" 
+                                           placeholder="v1.0.0" value="v1.0.0">
+                                    <div class="form-text">Semantic version (e.g., v1.0.0, v2.1.3)</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">
-                                        <i class="fab fa-docker"></i> Docker Hub Repository
-                                    </label>
-                                    <input type="text" class="form-control" id="dockerhub-repo" 
-                                           placeholder="repository-name">
-                                    <div class="form-text">Repository name only</div>
+                                    <label class="form-label">Commit Message (Optional)</label>
+                                    <input type="text" class="form-control" id="commit-message" 
+                                           placeholder="Update project to v1.0.0">
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Commit Message (Optional)</label>
-                            <input type="text" class="form-control" id="commit-message" 
-                                   placeholder="Update project">
+
+                        <!-- Deployment Target Selection -->
+                        <div class="mb-4">
+                            <label class="form-label">Deployment Targets</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="deploy-github" checked>
+                                        <label class="form-check-label" for="deploy-github">
+                                            <i class="fab fa-github me-2"></i>Deploy to GitHub
+                                        </label>
+                                    </div>
+                                    <div class="github-config" id="github-config">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fab fa-github"></i> GitHub Repository
+                                            </label>
+                                            <input type="text" class="form-control" id="github-repo" 
+                                                   placeholder="username/repository-name">
+                                            <div class="form-text">Format: username/repository-name</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="deploy-dockerhub" checked>
+                                        <label class="form-check-label" for="deploy-dockerhub">
+                                            <i class="fab fa-docker me-2"></i>Deploy to Docker Hub
+                                        </label>
+                                    </div>
+                                    <div class="dockerhub-config" id="dockerhub-config">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fab fa-docker"></i> Docker Hub Repository
+                                            </label>
+                                            <input type="text" class="form-control" id="dockerhub-repo" 
+                                                   placeholder="repository-name">
+                                            <div class="form-text">Repository name only</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                     
@@ -287,25 +339,81 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             deploymentModal = new bootstrap.Modal(document.getElementById('deploymentModal'));
+            
+            // Handle checkbox interactions
+            document.getElementById('deploy-github').addEventListener('change', function() {
+                const githubConfig = document.getElementById('github-config');
+                if (this.checked) {
+                    githubConfig.classList.remove('disabled');
+                } else {
+                    githubConfig.classList.add('disabled');
+                    document.getElementById('github-repo').value = '';
+                }
+            });
+
+            document.getElementById('deploy-dockerhub').addEventListener('change', function() {
+                const dockerhubConfig = document.getElementById('dockerhub-config');
+                if (this.checked) {
+                    dockerhubConfig.classList.remove('disabled');
+                } else {
+                    dockerhubConfig.classList.add('disabled');
+                    document.getElementById('dockerhub-repo').value = '';
+                }
+            });
+
+            // Auto-update commit message when version changes
+            document.getElementById('project-version').addEventListener('input', function() {
+                const projectName = document.getElementById('project-name').value;
+                const version = this.value;
+                if (version && projectName) {
+                    document.getElementById('commit-message').placeholder = `Release ${projectName} ${version}`;
+                }
+            });
         });
 
         function selectProject(projectName) {
             currentProject = projectName;
             document.getElementById('project-name').value = projectName;
+            document.getElementById('project-version').value = 'v1.0.0';
+            
+            // Reset checkboxes and enable configs
+            document.getElementById('deploy-github').checked = true;
+            document.getElementById('deploy-dockerhub').checked = true;
+            document.getElementById('github-config').classList.remove('disabled');
+            document.getElementById('dockerhub-config').classList.remove('disabled');
+            
+            // Set default values
             document.getElementById('github-repo').value = '';
             document.getElementById('dockerhub-repo').value = projectName.toLowerCase();
             document.getElementById('commit-message').value = '';
+            document.getElementById('commit-message').placeholder = `Release ${projectName} v1.0.0`;
+            
+            // Reset progress section
             document.getElementById('deployment-progress').style.display = 'none';
             deploymentModal.show();
         }
 
         async function startDeployment() {
-            const githubRepo = document.getElementById('github-repo').value;
-            const dockerhubRepo = document.getElementById('dockerhub-repo').value;
-            const commitMessage = document.getElementById('commit-message').value;
+            const deployGithub = document.getElementById('deploy-github').checked;
+            const deployDockerhub = document.getElementById('deploy-dockerhub').checked;
+            const githubRepo = deployGithub ? document.getElementById('github-repo').value : '';
+            const dockerhubRepo = deployDockerhub ? document.getElementById('dockerhub-repo').value : '';
+            const projectVersion = document.getElementById('project-version').value;
+            const commitMessage = document.getElementById('commit-message').value || 
+                                 `Release ${currentProject} ${projectVersion}`;
             
-            if (!githubRepo && !dockerhubRepo) {
-                alert('Please specify at least one deployment target (GitHub or Docker Hub)');
+            if (!deployGithub && !deployDockerhub) {
+                alert('Please select at least one deployment target (GitHub or Docker Hub)');
+                return;
+            }
+            
+            if (deployGithub && !githubRepo) {
+                alert('Please specify the GitHub repository name');
+                return;
+            }
+            
+            if (deployDockerhub && !dockerhubRepo) {
+                alert('Please specify the Docker Hub repository name');
                 return;
             }
             
@@ -317,10 +425,10 @@
             const progressContainer = document.getElementById('progress-container');
             progressContainer.innerHTML = '';
             
-            if (githubRepo) {
+            if (deployGithub) {
                 progressContainer.innerHTML += createProgressIndicator('github', 'GitHub Push');
             }
-            if (dockerhubRepo) {
+            if (deployDockerhub) {
                 progressContainer.innerHTML += createProgressIndicator('docker', 'Docker Build & Push');
             }
             
@@ -334,6 +442,7 @@
                         project_name: currentProject,
                         github_repo: githubRepo,
                         dockerhub_repo: dockerhubRepo,
+                        project_version: projectVersion,
                         commit_message: commitMessage
                     })
                 });
@@ -378,7 +487,18 @@
             
             if (step.success) {
                 stepElement.className = 'step success';
-                statusElement.textContent = step.message;
+                let message = step.message;
+                
+                // Add version information if available
+                if (step.version) {
+                    if (type === 'github' && step.tagged) {
+                        message += ` (Tagged: ${step.version})`;
+                    } else if (type === 'docker' && step.tags) {
+                        message += ` (Tags: ${step.tags.join(', ')})`;
+                    }
+                }
+                
+                statusElement.textContent = message;
                 statusElement.className = 'text-success';
             } else {
                 stepElement.className = 'step error';
