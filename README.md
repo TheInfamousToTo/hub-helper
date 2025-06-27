@@ -33,6 +33,7 @@ A streamlined deployment automation tool that simplifies pushing projects to Git
 
 2. **Configure Environment**
    - Update `docker-compose.yml` with your GitHub OAuth credentials:
+
    ```yaml
    environment:
      - GITHUB_CLIENT_ID=your-client-id
@@ -40,12 +41,13 @@ A streamlined deployment automation tool that simplifies pushing projects to Git
    ```
 
 3. **Start the Application**
+
    ```bash
    docker-compose up -d --build
    ```
 
 4. **Access the Interface**
-   - Open http://localhost:5414
+   - Open <http://localhost:5414>
    - Complete GitHub OAuth authentication
    - Enter Docker Hub credentials
 
@@ -70,6 +72,7 @@ A streamlined deployment automation tool that simplifies pushing projects to Git
 ### Version Management
 
 The application automatically:
+
 - Creates/updates version files in projects
 - Creates Git tags for releases
 - Tags Docker images with both `latest` and version-specific tags
@@ -78,10 +81,12 @@ The application automatically:
 ### Project Requirements
 
 For **GitHub deployment**:
+
 - Project must be a valid Git repository
 - Repository name format: `username/repository-name`
 
 For **Docker deployment**:
+
 - Project must contain a valid `Dockerfile`
 - Repository name format: `repository-name`
 

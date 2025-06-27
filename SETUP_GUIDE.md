@@ -9,7 +9,8 @@
 ### 1. Set up GitHub OAuth (Required)
 
 **Step 1: Create GitHub OAuth App**
-1. Go to: https://github.com/settings/developers
+
+1. Go to: <https://github.com/settings/developers>
 2. Click "New OAuth App"
 3. Fill in the details:
    - **Application name**: `Hub Helper`
@@ -23,6 +24,7 @@
 #### Option A: Using Docker Compose (Recommended)
 
 1. **Update the GitHub OAuth credentials** in `docker-compose.yml`:
+
    ```yaml
    environment:
      - GITHUB_CLIENT_ID=your-actual-client-id-here
@@ -30,6 +32,7 @@
    ```
 
 2. **Start the application**:
+
    ```bash
    cd /home/toto/hub-helper
    docker-compose up -d --build
@@ -62,6 +65,7 @@ docker run -d \
 cd /home/toto/hub-helper
 ./setup.sh
 ```
+
 The script will prompt you for your GitHub OAuth credentials.
 
 ## 🔐 Persistent Login Feature
@@ -92,16 +96,20 @@ The Hub Helper now saves your login credentials securely:
 ## 🔧 Troubleshooting
 
 ### GitHub OAuth Error
+
 If you get `"GitHub OAuth not configured"`:
+
 1. Make sure you've created the OAuth app on GitHub
 2. Double-check your Client ID and Client Secret in the environment variables
 3. Ensure the callback URL is exactly: `http://localhost:5414/auth/github/callback`
 
 ### Docker Hub Login Issues
+
 - Make sure your Docker Hub credentials are correct
 - Check if Docker Hub is accessible from your network
 
 ### Persistent Login Not Working
+
 - Ensure the `hub-helper-data` volume is mounted correctly
 - Check container logs: `docker-compose logs -f hub-helper`
 
@@ -112,18 +120,21 @@ If you get `"GitHub OAuth not configured"`:
 **Solution**: The container automatically fixes this, but if you encounter issues:
 
 1. **Check file ownership** (run outside container):
+
    ```bash
    sudo chown -R $USER:$USER /home/toto/hub-helper
    sudo chmod -R 755 /home/toto/hub-helper
    ```
 
 2. **Fix Git safe directory** (the container does this automatically):
+
    ```bash
    # This is handled automatically by the Dockerfile, but for reference:
    git config --global --add safe.directory /projects/your-project-name
    ```
 
 3. **If Git operations still fail**, use the included fix script:
+
    ```bash
    docker exec -it hub-helper-container /app/fix-git.sh
    ```
@@ -133,7 +144,9 @@ If you get `"GitHub OAuth not configured"`:
 **Problem**: Container fails to build or start.
 
 **Solutions**:
+
 1. **Clean Docker cache**:
+
    ```bash
    docker-compose down
    docker system prune -f
@@ -141,12 +154,14 @@ If you get `"GitHub OAuth not configured"`:
    ```
 
 2. **Check Docker daemon**:
+
    ```bash
    sudo systemctl status docker
    sudo systemctl start docker  # if not running
    ```
 
 3. **Verify Docker socket permissions**:
+
    ```bash
    sudo chmod 666 /var/run/docker.sock
    # Or add your user to docker group:
@@ -158,7 +173,8 @@ If you get `"GitHub OAuth not configured"`:
 
 **Problem**: Projects don't appear in the web interface.
 
-**Solution**: 
+**Solution**:
+
 1. **Verify volume mount**: Ensure `/home/toto:/projects` is correctly mounted
 2. **Check project structure**: Projects should be direct subdirectories of `/home/toto`
 3. **Restart container**: Sometimes a restart helps refresh the project list
@@ -168,6 +184,7 @@ If you get `"GitHub OAuth not configured"`:
 **Problem**: Git push operations fail even after authentication.
 
 **Solutions**:
+
 1. **Token permissions**: Ensure your GitHub token has `repo` scope
 2. **Repository exists**: Make sure the GitHub repository exists and is accessible
 3. **Branch issues**: The app pushes to `master` branch by default
@@ -178,6 +195,7 @@ If you get `"GitHub OAuth not configured"`:
 **Problem**: Docker operations fail during deployment.
 
 **Solutions**:
+
 1. **Dockerfile exists**: Ensure your project has a valid Dockerfile
 2. **Docker Hub access**: Verify Docker Hub credentials and repository access
 3. **Image size**: Large images might timeout - optimize your Dockerfile
@@ -187,14 +205,18 @@ If you get `"GitHub OAuth not configured"`:
 
 **Problem**: Configuration not being picked up.
 
-**Solution**: 
+**Solution**:
+
 1. **Check docker-compose.yml**: Verify all environment variables are set
 2. **Restart after changes**: Always restart the container after environment changes:
+
    ```bash
    docker-compose down
    docker-compose up -d
    ```
+
 3. **Use .env file**: Create a `.env` file for easier management:
+
    ```bash
    GITHUB_CLIENT_ID=your-client-id
    GITHUB_CLIENT_SECRET=your-client-secret
@@ -205,13 +227,17 @@ If you get `"GitHub OAuth not configured"`:
 
 **Problem**: Port 5414 is already occupied.
 
-**Solution**: 
+**Solution**:
+
 1. **Check what's using the port**:
+
    ```bash
    sudo lsof -i :5414
    sudo netstat -tulnp | grep 5414
    ```
+
 2. **Kill the process** or **change the port** in docker-compose.yml:
+
    ```yaml
    ports:
      - "5415:5414"  # Use different external port
@@ -244,12 +270,14 @@ curl http://localhost:5414/auth/status
 ## 🌍 Deployment Scenarios
 
 ### Local Development
+
 ```bash
 # Standard local setup
 docker-compose up -d --build
 ```
 
 ### Production Server
+
 ```bash
 # Production with specific configurations
 docker run -d \
@@ -269,6 +297,7 @@ docker run -d \
 ```
 
 ### Multi-User Environment
+
 ```yaml
 # docker-compose.yml for shared server
 version: '3.8'
@@ -307,16 +336,20 @@ services:
 Based on development experience, here are issues you might encounter:
 
 ### Issue: "Git push fails silently"
+
 **Symptoms**: Commits appear local but don't show on GitHub
-**Solution**: 
+**Solution**:
+
 ```bash
 # Force a sync push
 docker exec -it hub-helper-container git -C /projects/your-project push --force origin master
 ```
 
 ### Issue: "Docker build fails with permission denied"
+
 **Symptoms**: Cannot build Docker images from within container
 **Solution**: Ensure Docker socket has correct permissions:
+
 ```bash
 sudo chmod 666 /var/run/docker.sock
 # OR add your user to docker group
@@ -324,8 +357,10 @@ sudo usermod -aG docker $USER
 ```
 
 ### Issue: "Projects directory empty"
+
 **Symptoms**: No projects show in web interface
 **Solution**: Check volume mount and permissions:
+
 ```bash
 # Check mount
 docker exec -it hub-helper-container ls -la /projects
@@ -334,15 +369,19 @@ sudo chown -R $USER:$USER /home/toto/your-projects
 ```
 
 ### Issue: "GitHub OAuth redirect fails"
+
 **Symptoms**: Callback URL errors during GitHub login
 **Solution**: Verify OAuth app settings:
+
 - Homepage URL: `http://localhost:5414`
 - Callback URL: `http://localhost:5414/auth/github/callback`
 - **Exact match required - no trailing slashes**
 
 ### Issue: "Persistent login not working after container restart"
+
 **Symptoms**: Need to login again after `docker-compose restart`
 **Solution**: Ensure volume is properly mounted:
+
 ```bash
 # Check volume exists
 docker volume ls | grep hub-helper
