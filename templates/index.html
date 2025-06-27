@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Helper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #e6edf3;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .navbar {
+            background-color: #21262d;
+            border-bottom: 1px solid #30363d;
+        }
+        .navbar-brand {
+            color: #e6edf3 !important;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .project-card {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .project-card:hover {
+            transform: translateY(-2px);
+            border-color: #58a6ff;
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-title {
+            color: #58a6ff;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .card-text {
+            color: #8b949e;
+            font-size: 0.875rem;
+        }
+        .btn-primary {
+            background-color: #238636;
+            border-color: #238636;
+            color: #fff;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #2ea043;
+            border-color: #2ea043;
+        }
+        .btn-secondary {
+            background-color: #21262d;
+            border-color: #30363d;
+            color: #e6edf3;
+        }
+        .btn-secondary:hover {
+            background-color: #30363d;
+            border-color: #8b949e;
+            color: #e6edf3;
+        }
+        .modal-content {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+        }
+        .modal-header {
+            background-color: #21262d;
+            border-bottom: 1px solid #30363d;
+        }
+        .modal-title {
+            color: #e6edf3;
+        }
+        .form-control {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+        }
+        .form-control:focus {
+            background-color: #0d1117;
+            border-color: #58a6ff;
+            color: #e6edf3;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+        }
+        .form-label {
+            color: #e6edf3;
+            font-weight: 500;
+        }
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .step-indicator .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .step.pending {
+            background-color: #6e7681;
+            color: #e6edf3;
+        }
+        .step.running {
+            background-color: #d29922;
+            color: #0d1117;
+        }
+        .step.success {
+            background-color: #238636;
+            color: #fff;
+        }
+        .step.error {
+            background-color: #da3633;
+            color: #fff;
+        }
+        .log-output {
+            background-color: #0d1117;
+            color: #e6edf3;
+            padding: 1rem;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .text-muted {
+            color: #8b949e !important;
+        }
+        .border {
+            border-color: #30363d !important;
+        }
+        .alert-info {
+            background-color: #0c2d6b;
+            border-color: #1f6feb;
+            color: #79c0ff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1 d-flex align-items-center">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Hub Helper Logo" style="width: 32px; height: 32px; margin-right: 0.5rem;">
+                Hub Helper
+            </span>
+            <div>
+                <button class="btn btn-outline-light me-2" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <a href="/logout" class="btn btn-outline-light">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-center mb-4">
+                    <h2 class="mb-0 me-3">Your Projects</h2>
+                    <span class="badge bg-secondary">{{ projects|length }} projects found</span>
+                </div>
+                <div class="row" id="projects-container">
+                    {% for project in projects %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card project-card h-100" onclick="selectProject('{{ project.name }}')">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fab fa-github"></i> {{ project.name }}
+                                </h5>
+                                <div class="mb-3">
+                                    {% if project.has_git %}
+                                        <span class="badge bg-success me-1">
+                                            <i class="fab fa-git-alt"></i> Git Ready
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark me-1">
+                                            <i class="fas fa-exclamation-triangle"></i> No Git
+                                        </span>
+                                    {% endif %}
+                                    {% if project.has_dockerfile %}
+                                        <span class="badge bg-primary">
+                                            <i class="fab fa-docker"></i> Docker Ready
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-info-circle"></i> No Dockerfile
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text text-muted">
+                                    <small><i class="fas fa-folder-open"></i> {{ project.path }}</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deployment Modal -->
+    <div class="modal fade" id="deploymentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fab fa-github"></i> Deploy to Hub
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deployment-form">
+                        <div class="mb-3">
+                            <label class="form-label">Project Name</label>
+                            <input type="text" class="form-control" id="project-name" readonly>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fab fa-github"></i> GitHub Repository
+                                    </label>
+                                    <input type="text" class="form-control" id="github-repo" 
+                                           placeholder="username/repository-name">
+                                    <div class="form-text">Format: username/repository-name</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fab fa-docker"></i> Docker Hub Repository
+                                    </label>
+                                    <input type="text" class="form-control" id="dockerhub-repo" 
+                                           placeholder="repository-name">
+                                    <div class="form-text">Repository name only</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Commit Message (Optional)</label>
+                            <input type="text" class="form-control" id="commit-message" 
+                                   placeholder="Update project">
+                        </div>
+                    </form>
+                    
+                    <!-- Deployment Progress -->
+                    <div id="deployment-progress" style="display: none;">
+                        <hr>
+                        <h6>Deployment Progress</h6>
+                        <div id="progress-container"></div>
+                        <div id="log-container"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="startDeployment()">
+                        <i class="fas fa-rocket"></i> Deploy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let deploymentModal;
+        let currentProject = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            deploymentModal = new bootstrap.Modal(document.getElementById('deploymentModal'));
+        });
+
+        function selectProject(projectName) {
+            currentProject = projectName;
+            document.getElementById('project-name').value = projectName;
+            document.getElementById('github-repo').value = '';
+            document.getElementById('dockerhub-repo').value = projectName.toLowerCase();
+            document.getElementById('commit-message').value = '';
+            document.getElementById('deployment-progress').style.display = 'none';
+            deploymentModal.show();
+        }
+
+        async function startDeployment() {
+            const githubRepo = document.getElementById('github-repo').value;
+            const dockerhubRepo = document.getElementById('dockerhub-repo').value;
+            const commitMessage = document.getElementById('commit-message').value;
+            
+            if (!githubRepo && !dockerhubRepo) {
+                alert('Please specify at least one deployment target (GitHub or Docker Hub)');
+                return;
+            }
+            
+            // Show progress section
+            document.getElementById('deployment-progress').style.display = 'block';
+            document.querySelector('.modal-footer .btn-primary').disabled = true;
+            
+            // Initialize progress indicators
+            const progressContainer = document.getElementById('progress-container');
+            progressContainer.innerHTML = '';
+            
+            if (githubRepo) {
+                progressContainer.innerHTML += createProgressIndicator('github', 'GitHub Push');
+            }
+            if (dockerhubRepo) {
+                progressContainer.innerHTML += createProgressIndicator('docker', 'Docker Build & Push');
+            }
+            
+            try {
+                const response = await fetch('/deploy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        project_name: currentProject,
+                        github_repo: githubRepo,
+                        dockerhub_repo: dockerhubRepo,
+                        commit_message: commitMessage
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update progress indicators
+                    result.steps.forEach(step => {
+                        updateProgressIndicator(step);
+                    });
+                } else {
+                    alert('Deployment failed: ' + result.error);
+                }
+                
+            } catch (error) {
+                alert('Deployment error: ' + error.message);
+            } finally {
+                document.querySelector('.modal-footer .btn-primary').disabled = false;
+            }
+        }
+
+        function createProgressIndicator(type, title) {
+            const iconClass = type === 'github' ? 'fab fa-github' : 'fab fa-docker';
+            return `
+                <div class="step-indicator" id="${type}-progress">
+                    <div class="step pending">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div>
+                        <h6>${title}</h6>
+                        <small class="text-muted" id="${type}-status">Waiting...</small>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateProgressIndicator(step) {
+            const type = step.step.includes('GitHub') ? 'github' : 'docker';
+            const stepElement = document.querySelector(`#${type}-progress .step`);
+            const statusElement = document.getElementById(`${type}-status`);
+            
+            if (step.success) {
+                stepElement.className = 'step success';
+                statusElement.textContent = step.message;
+                statusElement.className = 'text-success';
+            } else {
+                stepElement.className = 'step error';
+                statusElement.textContent = 'Error: ' + step.error;
+                statusElement.className = 'text-danger';
+            }
+        }
+
+        // Load version information
+        fetch('/version')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Hub Helper ' + data.version);
+            })
+            .catch(error => console.log('Version info not available'));
+    </script>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4" style="background-color: #21262d; border-top: 1px solid #30363d;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0 text-muted">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Hub Helper" style="width: 16px; height: 16px; margin-right: 0.5rem;">
+                        Hub Helper
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted">
+                        <small>Version 1.0 | Automate your deployments</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

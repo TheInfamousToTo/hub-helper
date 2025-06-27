@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Helper - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0d1117;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #1f2937 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #374151 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            color: #e6edf3;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .login-container {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            box-shadow: 0 16px 32px rgba(1, 4, 9, 0.85);
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo i {
+            font-size: 3.5rem;
+            color: #58a6ff;
+        }
+        .form-control {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            border-radius: 6px;
+        }
+        .form-control:focus {
+            background-color: #0d1117;
+            border-color: #58a6ff;
+            color: #e6edf3;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+        }
+        .form-label {
+            color: #e6edf3;
+            font-weight: 500;
+        }
+        .btn-github {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-github:hover {
+            background-color: #30363d;
+            border-color: #8b949e;
+            color: #e6edf3;
+        }
+        .btn-docker {
+            background-color: #0969da;
+            border-color: #0969da;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-docker:hover {
+            background-color: #0860ca;
+            border-color: #0860ca;
+            color: #fff;
+        }
+        .auth-section {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background-color: #0d1117;
+        }
+        .auth-section.completed {
+            border-color: #238636;
+            background-color: #0d1117;
+        }
+        .auth-section h5 {
+            color: #e6edf3;
+            margin-bottom: 0.5rem;
+        }
+        .text-muted {
+            color: #8b949e !important;
+        }
+        .btn-success {
+            background-color: #238636;
+            border-color: #238636;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-success:hover {
+            background-color: #2ea043;
+            border-color: #2ea043;
+        }
+        .btn-success:disabled {
+            background-color: #21262d;
+            border-color: #30363d;
+            color: #6e7681;
+        }
+        .alert-success {
+            background-color: #0d1117;
+            border: 1px solid #238636;
+            color: #2ea043;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="login-container mx-auto">
+                    <div class="logo">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Hub Helper Logo" style="max-width: 80px; height: auto; margin-bottom: 1rem;">
+                        <h2>Hub Helper</h2>
+                        <p class="text-muted">Automate your GitHub & Docker Hub deployments</p>
+                    </div>
+
+                    <!-- GitHub Authentication -->
+                    <div class="auth-section" id="github-section">
+                        <h5><i class="fab fa-github"></i> GitHub Authentication</h5>
+                        <p class="text-muted">Connect your GitHub account to push code</p>
+                        <button class="btn btn-github btn-lg w-100" onclick="authenticateGitHub()">
+                            <i class="fab fa-github"></i> Login with GitHub
+                        </button>
+                    </div>
+
+                    <!-- Docker Hub Authentication -->
+                    <div class="auth-section" id="dockerhub-section">
+                        <h5><i class="fab fa-docker"></i> Docker Hub Authentication</h5>
+                        <p class="text-muted">Enter your Docker Hub credentials</p>
+                        <form id="dockerhub-form">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="dockerhub-username" placeholder="Docker Hub Username" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" id="dockerhub-password" placeholder="Docker Hub Password" required>
+                            </div>
+                            <button type="submit" class="btn btn-docker btn-lg w-100">
+                                <i class="fab fa-docker"></i> Connect Docker Hub
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-success btn-lg w-100" id="continue-btn" disabled onclick="window.location.href='/'">
+                            <i class="fas fa-arrow-right"></i> Continue to Hub Helper
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let githubAuthenticated = false;
+        let dockerhubAuthenticated = false;
+
+        function authenticateGitHub() {
+            window.location.href = '/auth/github';
+        }
+
+        document.getElementById('dockerhub-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('dockerhub-username').value;
+            const password = document.getElementById('dockerhub-password').value;
+            
+            try {
+                const response = await fetch('/auth/dockerhub', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    dockerhubAuthenticated = true;
+                    document.getElementById('dockerhub-section').classList.add('completed');
+                    document.getElementById('dockerhub-form').innerHTML = '<div class="alert alert-success"><i class="fas fa-check"></i> Docker Hub connected successfully!</div>';
+                    checkAuthenticationStatus();
+                } else {
+                    alert('Docker Hub authentication failed: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error connecting to Docker Hub: ' + error.message);
+            }
+        });
+
+        function checkAuthenticationStatus() {
+            if (githubAuthenticated && dockerhubAuthenticated) {
+                document.getElementById('continue-btn').disabled = false;
+            }
+        }
+
+        // Check if coming back from GitHub OAuth
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('github_success') === 'true') {
+            githubAuthenticated = true;
+            document.getElementById('github-section').classList.add('completed');
+            document.getElementById('github-section').innerHTML = '<h5><i class="fab fa-github"></i> GitHub Authentication</h5><div class="alert alert-success"><i class="fas fa-check"></i> GitHub connected successfully!</div>';
+            checkAuthenticationStatus();
+        }
+    </script>
+
+    <!-- Footer -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background-color: rgba(13, 17, 23, 0.9); padding: 1rem; text-align: center; border-top: 1px solid #30363d;">
+        <p class="mb-0 text-muted">
+            <small>Hub Helper v1.0 | Streamline your development workflow</small>
+        </p>
+    </div>
+</body>
+</html>
