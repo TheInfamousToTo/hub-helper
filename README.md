@@ -1,169 +1,180 @@
 # Hub Helper
 
-<div align="center">
-  <img src="assets/hub-helper-main.png" alt="Hub Helper Logo" width="400">
-  
-  **Version 1.0**
-  
-  *A web-based application that automates the deployment of your projects to GitHub and Docker Hub with just a few clicks.*
-  
-  ![Version](https://img.shields.io/badge/version-1.0-blue.svg)
-  ![Docker](https://img.shields.io/badge/docker-ready-green.svg)
-  ![GitHub](https://img.shields.io/badge/github-integration-black.svg)
-  ![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
-</div>
+![Hub Helper](assets/hub-helper-main.png)
+
+A streamlined deployment automation tool that simplifies pushing projects to GitHub and Docker Hub with a modern web interface, persistent authentication, and containerized deployment.
 
 ## Features
 
-- 🚀 **One-Click Deployment**: Push to GitHub and Docker Hub simultaneously
-- 🔐 **Secure Authentication**: OAuth integration with GitHub and Docker Hub
-- 📁 **Project Discovery**: Automatically detects projects in your specified directory
-- 🖥️ **Modern Web Interface**: Clean, responsive UI built with Bootstrap
-- 🐳 **Containerized**: Runs as a Docker container with docker-compose
-- 📝 **Git Integration**: Automatic commit and push with custom messages
-- 🔧 **Docker Integration**: Automatic image building and pushing
-
-## Prerequisites
-
-- Docker and Docker Compose installed
-- Projects directory with your code
-- GitHub account (for GitHub deployments)
-- Docker Hub account (for Docker deployments)
+• **Persistent Authentication** - securely stores GitHub OAuth tokens and Docker Hub credentials with encryption
+• **Selective Deployment** - choose to deploy to GitHub, Docker Hub, or both with checkbox selection
+• **Version Management** - semantic versioning support with automatic Git tagging and Docker image tagging
+• **Project Discovery** - automatically detects projects with Git repositories and Dockerfiles
+• **Modern UI** - GitHub-themed dark interface with responsive design
+• **Containerized** - fully containerized deployment with Docker Compose support
+• **Git Integration** - automatic Git configuration and safe directory handling
+• **Debug Tools** - built-in debugging endpoints and storage management utilities
 
 ## Quick Start
 
-1. **Clone/Download this project**
-   ```bash
-   git clone <repository-url>
-   cd hub-helper
-   ```
+### Prerequisites
 
-2. **Configure your projects path**
-   Edit `docker-compose.yml` and change the volume mount to your projects directory:
+• Docker and Docker Compose installed
+• GitHub OAuth App configured
+• Docker Hub account
+
+### Setup
+
+1. **Create GitHub OAuth App**
+   - Go to [GitHub Developer Settings](https://github.com/settings/developers)
+   - Click "New OAuth App"
+   - Set Homepage URL: `http://localhost:5414`
+   - Set Authorization callback URL: `http://localhost:5414/auth/github/callback`
+
+2. **Configure Environment**
+   - Update `docker-compose.yml` with your GitHub OAuth credentials:
    ```yaml
-   volumes:
-     - /path/to/your/projects:/projects  # Change this path
+   environment:
+     - GITHUB_CLIENT_ID=your-client-id
+     - GITHUB_CLIENT_SECRET=your-client-secret
    ```
 
-3. **Set up GitHub OAuth (Optional but recommended)**
-   - Go to GitHub > Settings > Developer settings > OAuth Apps
-   - Create a new OAuth App
-   - Set Authorization callback URL to: `http://localhost:5414/auth/github/callback`
-   - Update the environment variables in `docker-compose.yml`:
-     ```yaml
-     - GITHUB_CLIENT_ID=your-github-client-id
-     - GITHUB_CLIENT_SECRET=your-github-client-secret
-     ```
-
-4. **Start the application**
+3. **Start the Application**
    ```bash
-   docker-compose up -d
+   docker-compose up -d --build
    ```
 
-5. **Access the application**
-   Open your browser and go to `http://localhost:5414`
+4. **Access the Interface**
+   - Open http://localhost:5414
+   - Complete GitHub OAuth authentication
+   - Enter Docker Hub credentials
+
+## Environment Variables
+
+• `GITHUB_CLIENT_ID`: GitHub OAuth App Client ID (required)
+• `GITHUB_CLIENT_SECRET`: GitHub OAuth App Client Secret (required)
+• `SECRET_KEY`: Flask session encryption key (auto-generated if not provided)
+• `PROJECTS_PATH`: Path to scan for projects (default: `/projects`)
+• `FLASK_ENV`: Flask environment mode (default: `development`)
 
 ## Usage
 
-### First Time Setup
-1. Open the application in your browser
-2. Login with your GitHub account (OAuth) or enter credentials manually
-3. Enter your Docker Hub username and password
-4. Click "Continue to Hub Helper"
+### Deploying Projects
 
-### Deploying a Project
-1. Select a project from the list
-2. Specify the GitHub repository name (format: `username/repo-name`)
-3. Specify the Docker Hub repository name
-4. Add a commit message (optional)
-5. Click "Deploy"
+1. **Select Project**: Click on any discovered project card
+2. **Configure Version**: Set semantic version (e.g., v1.0.0, v2.1.3)
+3. **Choose Targets**: Select GitHub, Docker Hub, or both
+4. **Set Repository Names**: Specify GitHub and Docker Hub repository names
+5. **Deploy**: Click Deploy to start the automated process
 
-The application will:
-- Add all files to git
-- Commit with your message
-- Push to GitHub
-- Build Docker image
-- Push to Docker Hub
+### Version Management
 
-## Configuration
+The application automatically:
+- Creates/updates version files in projects
+- Creates Git tags for releases
+- Tags Docker images with both `latest` and version-specific tags
+- Generates appropriate commit messages
 
-### Environment Variables
+### Project Requirements
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `PROJECTS_PATH` | Path to your projects directory | Yes |
-| `SECRET_KEY` | Flask secret key for sessions | Yes |
-| `GITHUB_CLIENT_ID` | GitHub OAuth client ID | No* |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret | No* |
+For **GitHub deployment**:
+- Project must be a valid Git repository
+- Repository name format: `username/repository-name`
 
-*If GitHub OAuth is not configured, users will need to enter GitHub credentials manually.
+For **Docker deployment**:
+- Project must contain a valid `Dockerfile`
+- Repository name format: `repository-name`
 
-### Volume Mounts
+## Docker Compose
 
-- `/projects` - Mount your local projects directory here
-- `/var/run/docker.sock` - Required for Docker operations
-- `/usr/bin/docker` - Required for Docker binary access
+```yaml
+version: '3.8'
+services:
+  hub-helper:
+    build: .
+    ports:
+      - "5414:5414"
+    volumes:
+      - /home/toto:/projects
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - hub-helper-data:/app/data
+    environment:
+      - PROJECTS_PATH=/projects
+      - SECRET_KEY=your-secret-key
+      - GITHUB_CLIENT_ID=your-client-id
+      - GITHUB_CLIENT_SECRET=your-client-secret
+    restart: unless-stopped
+```
 
-## Project Structure Requirements
+## Security Features
 
-For a project to be deployable:
+• **Credential Encryption**: All stored credentials are encrypted using Fernet symmetric encryption
+• **Session Management**: Secure session handling with Flask sessions
+• **Token Validation**: GitHub tokens and Docker Hub credentials are validated before storage
+• **Safe Git Operations**: Automatic Git configuration and safe directory handling
 
-**For GitHub deployment:**
-- Project should be in a directory under your projects path
-- Will automatically initialize Git if not already a Git repository
+## API Endpoints
 
-**For Docker deployment:**
-- Project must contain a `Dockerfile`
-- Dockerfile should be properly configured for your application
-
-## Security Notes
-
-- Docker Hub credentials are stored in session only (not persisted)
-- GitHub tokens are stored in session only
-- Change the `SECRET_KEY` in production
-- Consider using GitHub OAuth for better security
-- The application has access to Docker socket - run in trusted environment only
+• `GET /`: Main application interface
+• `GET /version`: Application version information
+• `GET /auth/status`: Authentication status check
+• `GET /projects`: List discovered projects
+• `POST /deploy`: Deploy project to selected targets
+• `GET /debug/storage`: Debug persistent storage (development)
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Projects not showing up**
-   - Check the projects path in docker-compose.yml
-   - Ensure the directory exists and contains subdirectories
+**GitHub OAuth Error**: Verify OAuth app configuration and callback URL
+**Docker Permission Denied**: Ensure Docker socket permissions are correct
+**Projects Not Found**: Check volume mounts and project directory permissions
+**Persistent Login Issues**: Verify data volume mount and container logs
 
-2. **Docker build/push fails**
-   - Ensure Dockerfile exists in project
-   - Check Docker Hub credentials
-   - Verify Docker socket is properly mounted
+### Debug Commands
 
-3. **GitHub push fails**
-   - Check GitHub repository exists
-   - Verify authentication (OAuth or credentials)
-   - Ensure proper repository name format (username/repo)
-
-### Logs
 ```bash
-# View application logs
+# Check container logs
 docker-compose logs -f hub-helper
+
+# Verify authentication status
+curl http://localhost:5414/auth/status
+
+# Check storage debug information
+curl http://localhost:5414/debug/storage
 ```
 
 ## Development
 
-To run in development mode:
+### Local Development
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Set environment variables
+4. Run: `python app.py`
 
-# Set environment variables
-export PROJECTS_PATH=/path/to/your/projects
-export SECRET_KEY=dev-secret-key
+### File Structure
 
-# Run the application
-python app.py
+```
+hub-helper/
+├── app.py              # Main Flask application
+├── requirements.txt    # Python dependencies
+├── Dockerfile         # Container configuration
+├── docker-compose.yml # Docker Compose setup
+├── templates/         # HTML templates
+├── static/           # Static assets
+└── assets/           # Project assets and logos
 ```
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License. See LICENSE for details.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for improvements or bug fixes.
+
+## Acknowledgements
+
+Built with Flask, Docker, and modern web technologies to streamline the deployment workflow for developers and teams.
