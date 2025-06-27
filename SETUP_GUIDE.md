@@ -241,177 +241,152 @@ curl http://localhost:5414/debug/storage
 curl http://localhost:5414/auth/status
 ```
 
-## 🔄 Managing the Application
+## 🌍 Deployment Scenarios
 
+### Local Development
 ```bash
-# View logs
-docker-compose logs -f hub-helper
-
-# Restart the application
-docker-compose restart hub-helper
-
-# Stop the application
-docker-compose down
-
-# Rebuild and start
+# Standard local setup
 docker-compose up -d --build
-
-# Clear all data (including saved logins)
-docker-compose down -v
 ```
 
-## 🚨 Pre-Deployment Checklist
+### Production Server
+```bash
+# Production with specific configurations
+docker run -d \
+  --name hub-helper-prod \
+  --restart unless-stopped \
+  -p 5414:5414 \
+  -v /var/projects:/projects \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /usr/bin/docker:/usr/bin/docker:ro \
+  -v hub-helper-prod-data:/app/data \
+  -e PROJECTS_PATH=/projects \
+  -e SECRET_KEY=$(openssl rand -hex 32) \
+  -e GITHUB_CLIENT_ID=your-prod-client-id \
+  -e GITHUB_CLIENT_SECRET=your-prod-client-secret \
+  -e FLASK_ENV=production \
+  hub-helper:latest
+```
 
-Before using Hub Helper, ensure these prerequisites are met:
+### Multi-User Environment
+```yaml
+# docker-compose.yml for shared server
+version: '3.8'
+services:
+  hub-helper:
+    build: .
+    ports:
+      - "5414:5414"
+    volumes:
+      - /shared/projects:/projects
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - hub-helper-shared-data:/app/data
+    environment:
+      - PROJECTS_PATH=/projects
+      - SECRET_KEY=${SECRET_KEY}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - FLASK_ENV=production
+    restart: unless-stopped
+```
 
-### System Requirements
-- [ ] **Docker installed and running**
-  ```bash
-  docker --version
-  docker-compose --version
-  ```
-- [ ] **User in docker group** (or use sudo)
-  ```bash
-  groups $USER | grep docker
-  ```
-- [ ] **Port 5414 available**
-  ```bash
-  netstat -tulnp | grep 5414
-  ```
+## 🔐 Environment Variables Reference
 
-### GitHub Setup
-- [ ] **OAuth App created** on GitHub
-- [ ] **Client ID and Secret** copied to docker-compose.yml
-- [ ] **Callback URL** set to `http://localhost:5414/auth/github/callback`
-- [ ] **Personal Access Token** ready (if needed for private repos)
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GITHUB_CLIENT_ID` | ✅ Yes | None | GitHub OAuth App Client ID |
+| `GITHUB_CLIENT_SECRET` | ✅ Yes | None | GitHub OAuth App Client Secret |
+| `SECRET_KEY` | Recommended | Auto-generated | Flask session encryption key |
+| `PROJECTS_PATH` | No | `/projects` | Path to scan for projects |
+| `FLASK_ENV` | No | `development` | Flask environment mode |
+| `FLASK_APP` | No | `app.py` | Flask application entry point |
 
-### Docker Hub Setup
-- [ ] **Docker Hub account** active
-- [ ] **Repository permissions** verified
-- [ ] **Username and password** ready
+## 🚨 Known Issues & Solutions
 
-### File Permissions
-- [ ] **Project directory** owned by your user
-  ```bash
-  ls -la /home/toto/hub-helper
-  ```
-- [ ] **Docker socket** accessible
-  ```bash
-  ls -la /var/run/docker.sock
-  ```
+Based on development experience, here are issues you might encounter:
 
-## 🛠️ First-Time Setup Verification
+### Issue: "Git push fails silently"
+**Symptoms**: Commits appear local but don't show on GitHub
+**Solution**: 
+```bash
+# Force a sync push
+docker exec -it hub-helper-container git -C /projects/your-project push --force origin master
+```
 
-After starting the container, verify everything works:
+### Issue: "Docker build fails with permission denied"
+**Symptoms**: Cannot build Docker images from within container
+**Solution**: Ensure Docker socket has correct permissions:
+```bash
+sudo chmod 666 /var/run/docker.sock
+# OR add your user to docker group
+sudo usermod -aG docker $USER
+```
 
-1. **Container Status**:
-   ```bash
-   docker-compose ps
-   # Should show hub-helper as "Up"
-   ```
+### Issue: "Projects directory empty"
+**Symptoms**: No projects show in web interface
+**Solution**: Check volume mount and permissions:
+```bash
+# Check mount
+docker exec -it hub-helper-container ls -la /projects
+# Fix ownership if needed
+sudo chown -R $USER:$USER /home/toto/your-projects
+```
 
-2. **Web Interface**:
-   - Open http://localhost:5414
-   - Should show login page with Hub Helper logo
+### Issue: "GitHub OAuth redirect fails"
+**Symptoms**: Callback URL errors during GitHub login
+**Solution**: Verify OAuth app settings:
+- Homepage URL: `http://localhost:5414`
+- Callback URL: `http://localhost:5414/auth/github/callback`
+- **Exact match required - no trailing slashes**
 
-3. **GitHub OAuth**:
-   - Click "Login with GitHub"
-   - Should redirect to GitHub authorization
-   - After approval, should return to Hub Helper
+### Issue: "Persistent login not working after container restart"
+**Symptoms**: Need to login again after `docker-compose restart`
+**Solution**: Ensure volume is properly mounted:
+```bash
+# Check volume exists
+docker volume ls | grep hub-helper
+# Verify mount
+docker exec -it hub-helper-container ls -la /app/data
+```
 
-4. **Docker Hub Login**:
-   - Enter Docker Hub credentials
-   - Should show "Login successful"
+## 🎯 Quick Verification Commands
 
-5. **Project Discovery**:
-   - Should list projects from `/home/toto/`
-   - Each project should show Git/Docker status
-
-## 🔍 Health Check Endpoints
-
-Use these endpoints to verify the application health:
+After setup, run these commands to verify everything works:
 
 ```bash
-# Check application version
-curl http://localhost:5414/version
+# 1. Container health
+docker-compose ps
+curl -f http://localhost:5414/version || echo "Container not responding"
 
-# Check authentication status
-curl http://localhost:5414/auth/status
+# 2. Authentication endpoints
+curl -s http://localhost:5414/auth/status | jq '.'
 
-# Debug persistent storage (shows encrypted data status)
-curl http://localhost:5414/debug/storage
+# 3. Project discovery
+curl -s http://localhost:5414/projects | jq '.'
 
-# Get projects list
-curl http://localhost:5414/projects
+# 4. Storage encryption
+curl -s http://localhost:5414/debug/storage | jq '.'
+
+# 5. Log check (should show no errors)
+docker-compose logs hub-helper | grep -i error
 ```
 
-## 🛡️ Security Notes
+## 📝 Success Indicators
 
-- Credentials are encrypted using Fernet symmetric encryption
-- Each container instance generates its own encryption key
-- Logout will completely remove stored credentials
-- GitHub tokens have limited scope (repo access only)
-- Docker Hub credentials are only stored in memory and encrypted files
+Your Hub Helper is working correctly when:
 
-## 🔧 Built-in Problem Fixes
+- ✅ Web interface loads at `http://localhost:5414`
+- ✅ GitHub OAuth redirects work without errors
+- ✅ Docker Hub login succeeds
+- ✅ Projects are discovered and listed
+- ✅ Credentials persist after container restart
+- ✅ Git operations complete successfully
+- ✅ Docker builds and pushes work
+- ✅ No permission errors in logs
 
-Hub Helper v1.0 includes automatic fixes for common Docker container issues:
+---
 
-### Automatic Git Configuration
-The container automatically handles:
-- **Safe directory configuration**: Prevents "dubious ownership" errors
-- **Default user/email setup**: Sets hub-helper@automation.local for commits
-- **Permission fixes**: Ensures Git operations work in containerized environment
+**Hub Helper v1.0** - Built with experience from real deployment challenges!
 
-### Docker Socket Access
-- **Automatic mounting**: Docker socket is properly mounted for build operations
-- **Permission handling**: Container runs with appropriate Docker access
-- **Binary availability**: Docker binary is available inside the container
-
-### Persistent Storage Encryption
-- **Automatic key generation**: Each container generates unique encryption keys
-- **Secure credential storage**: All tokens and passwords are encrypted at rest
-- **Volume persistence**: Data survives container restarts and rebuilds
-
-### Network Configuration
-- **Port management**: Runs on port 5414 by default
-- **OAuth callback**: Properly configured for GitHub authentication
-- **API endpoints**: Health check and debug endpoints available
-
-## 🚀 Advanced Features
-
-### Debugging Tools
-Hub Helper includes several debugging utilities:
-
-1. **Storage Debug Script**: `/app/debug_storage.py`
-   - Shows encryption key status
-   - Displays credential storage information
-   - Helps troubleshoot persistent login issues
-
-2. **Git Fix Script**: `/app/fix-git.sh`
-   - Repairs Git configuration issues
-   - Fixes ownership problems
-   - Resolves safe directory errors
-
-3. **Debug Endpoints**:
-   - `/debug/storage` - Storage status
-   - `/auth/status` - Authentication status
-   - `/version` - Application version
-
-### Container Optimization
-- **Efficient layering**: Dockerfile optimized for fast rebuilds
-- **Minimal attack surface**: Only necessary components installed
-- **Resource efficient**: Lightweight Python Flask application
-- **Health checks**: Built-in application health monitoring
-
-## ✨ Features
-
-- ✅ **GitHub OAuth Integration**: Secure authentication
-- ✅ **Persistent Login**: Stay logged in across container restarts  
-- ✅ **Encrypted Storage**: Credentials safely encrypted
-- ✅ **One-Click Deployment**: Push to GitHub and Docker Hub
-- ✅ **Project Discovery**: Automatically finds your projects
-- ✅ **GitHub Dark Theme**: Professional developer UI
-- ✅ **Docker Integration**: Build and push images automatically
-
-Your Hub Helper is now ready with persistent login capabilities!
+*This guide includes solutions for all issues encountered during development and testing.*
