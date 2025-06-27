@@ -181,6 +181,12 @@
                 <button class="btn btn-outline-light me-2" onclick="location.reload()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
+                <button class="btn btn-outline-warning me-2" onclick="cleanupDocker()" title="Clean up stopped containers and unused images">
+                    <i class="fas fa-broom"></i> Cleanup
+                </button>
+                <button class="btn btn-outline-info me-2" onclick="showSystemStatus()" title="Show Docker system status">
+                    <i class="fas fa-info-circle"></i> Status
+                </button>
                 <a href="/logout" class="btn btn-outline-light">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
@@ -514,6 +520,60 @@
                 console.log('Hub Helper ' + data.version);
             })
             .catch(error => console.log('Version info not available'));
+
+        // Docker cleanup function
+        async function cleanupDocker() {
+            if (!confirm('This will remove all stopped containers and unused images. Continue?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/cleanup/docker', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`Cleanup completed!\n\n${result.message}\n\nDetails:\n- Containers removed: ${result.details.containers_removed}\n- Images removed: ${result.details.images_removed}\n- Space reclaimed: ${result.details.space_reclaimed}`);
+                } else {
+                    alert('Cleanup failed: ' + result.error);
+                }
+            } catch (error) {
+                alert('Cleanup error: ' + error.message);
+            }
+        }
+
+        // System status function
+        async function showSystemStatus() {
+            try {
+                const response = await fetch('/system/status');
+                const status = await response.json();
+
+                let statusMessage = `Docker System Status:\n\n`;
+                statusMessage += `Containers:\n`;
+                statusMessage += `- Running: ${status.containers.running}\n`;
+                statusMessage += `- Stopped: ${status.containers.stopped}\n`;
+                statusMessage += `- Total: ${status.containers.total}\n\n`;
+                statusMessage += `Images:\n`;
+                statusMessage += `- Total: ${status.images.total}\n`;
+                statusMessage += `- Dangling: ${status.images.dangling}\n\n`;
+                statusMessage += `Docker Version: ${status.docker_version}\n\n`;
+
+                if (status.cleanup_recommended) {
+                    statusMessage += `⚠️  Cleanup recommended: You have ${status.containers.stopped} stopped containers and ${status.images.dangling} dangling images.`;
+                } else {
+                    statusMessage += `✅ System looks clean!`;
+                }
+
+                alert(statusMessage);
+            } catch (error) {
+                alert('Failed to get system status: ' + error.message);
+            }
+        }
     </script>
 
     <!-- Footer -->

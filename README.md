@@ -14,6 +14,7 @@ A streamlined deployment automation tool that simplifies pushing projects to Git
 • **Containerized** - fully containerized deployment with Docker Compose support
 • **Git Integration** - automatic Git configuration and safe directory handling
 • **Debug Tools** - built-in debugging endpoints and storage management utilities
+• **Docker Cleanup** - automatic cleanup of build containers and manual cleanup tools to prevent resource accumulation
 
 ## Quick Start
 
@@ -127,6 +128,8 @@ services:
 • `GET /projects`: List discovered projects
 • `POST /deploy`: Deploy project to selected targets
 • `GET /debug/storage`: Debug persistent storage (development)
+• `POST /cleanup/docker`: Clean up stopped containers and unused images
+• `GET /system/status`: Get Docker system status and resource usage
 
 ## Troubleshooting
 
@@ -148,7 +151,27 @@ curl http://localhost:5414/auth/status
 
 # Check storage debug information
 curl http://localhost:5414/debug/storage
+
+# Get Docker system status
+curl http://localhost:5414/system/status
+
+# Manually clean up Docker resources
+curl -X POST http://localhost:5414/cleanup/docker
 ```
+
+### Docker Resource Management
+
+Hub Helper includes automatic Docker cleanup features to prevent container accumulation:
+
+**Automatic Cleanup:**
+- Removes intermediate containers after each build
+- Cleans up old containers (created > 10 min, exited > 30 min) after deployments
+- Prunes dangling images to reclaim disk space
+
+**Manual Cleanup:**
+- Click the "Cleanup" button in the web interface
+- Use the `/cleanup/docker` API endpoint
+- Check system status with the "Status" button
 
 ## Development
 

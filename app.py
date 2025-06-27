@@ -262,6 +262,14 @@ def deploy():
         if dockerhub_repo:
             docker_result = push_to_dockerhub(project_path, dockerhub_repo, project_version)
             result['steps'].append(docker_result)
+            
+            # Automatic cleanup after Docker operations
+            if docker_result['success']:
+                try:
+                    cleanup_old_containers()
+                    logger.info("Automatic cleanup completed after Docker deployment")
+                except Exception as cleanup_error:
+                    logger.warning(f"Automatic cleanup failed: {cleanup_error}")
         
         result['success'] = True
         return jsonify(result)
@@ -385,6 +393,9 @@ def push_to_github(project_path, repo_name, commit_message, project_version='v1.
 
 def push_to_dockerhub(project_path, repo_name, project_version='v1.0.0'):
     """Build and push Docker image to Docker Hub with version tagging"""
+    client = None
+    built_image = None
+    
     try:
         dockerfile_path = os.path.join(project_path, 'Dockerfile')
         if not os.path.exists(dockerfile_path):
@@ -410,18 +421,30 @@ def push_to_dockerhub(project_path, repo_name, project_version='v1.0.0'):
         # Build image with multiple tags
         image_name = f"{dockerhub_creds['username']}/{repo_name}"
         
-        # Build image
-        image, build_logs = client.images.build(
+        # Build image with cleanup options
+        built_image, build_logs = client.images.build(
             path=project_path,
-            tag=f"{image_name}:latest"
+            tag=f"{image_name}:latest",
+            rm=True,  # Remove intermediate containers
+            forcerm=True,  # Always remove intermediate containers
+            pull=True,  # Always attempt to pull newer version of base image
+            nocache=False  # Use cache for faster builds
         )
         
         # Tag with version
-        image.tag(image_name, docker_version)
+        built_image.tag(image_name, docker_version)
         
         # Push both latest and version tags
         push_logs_latest = client.images.push(image_name, tag='latest')
         push_logs_version = client.images.push(image_name, tag=docker_version)
+        
+        # Clean up: remove old/unused images to save space
+        try:
+            # Remove dangling images (untagged intermediate images)
+            client.images.prune(filters={'dangling': True})
+            logger.info("Cleaned up dangling Docker images")
+        except Exception as cleanup_error:
+            logger.warning(f"Failed to clean up dangling images: {cleanup_error}")
         
         return {
             'step': 'Docker Push',
@@ -437,6 +460,31 @@ def push_to_dockerhub(project_path, repo_name, project_version='v1.0.0'):
             'success': False,
             'error': str(e)
         }
+    finally:
+        # Additional cleanup in case of any issues
+        if client:
+            try:
+                # Clean up any stopped containers from the build process
+                containers = client.containers.list(all=True, filters={'status': 'exited'})
+                for container in containers:
+                    # Only remove containers created in the last hour to avoid removing unrelated containers
+                    from datetime import datetime, timezone
+                    created_time = datetime.fromisoformat(container.attrs['Created'].replace('Z', '+00:00'))
+                    current_time = datetime.now(timezone.utc)
+                    if (current_time - created_time).total_seconds() < 3600:  # 1 hour
+                        try:
+                            container.remove(force=True)
+                            logger.info(f"Removed container: {container.short_id}")
+                        except Exception as remove_error:
+                            logger.warning(f"Failed to remove container {container.short_id}: {remove_error}")
+            except Exception as final_cleanup_error:
+                logger.warning(f"Failed during final cleanup: {final_cleanup_error}")
+            
+            # Close the Docker client connection
+            try:
+                client.close()
+            except:
+                pass
 
 @app.route('/logout')
 def logout():
@@ -480,5 +528,151 @@ def get_version():
     except:
         return jsonify({'version': 'v1.0'})
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5414, debug=True)
+@app.route('/cleanup/docker', methods=['POST'])
+def cleanup_docker():
+    """Clean up Docker containers and images"""
+    try:
+        client = docker.from_env()
+        cleanup_results = {
+            'containers_removed': 0,
+            'images_removed': 0,
+            'space_reclaimed': '0 MB'
+        }
+        
+        # Remove stopped containers
+        containers = client.containers.list(all=True, filters={'status': 'exited'})
+        for container in containers:
+            try:
+                container.remove(force=True)
+                cleanup_results['containers_removed'] += 1
+                logger.info(f"Removed stopped container: {container.short_id}")
+            except Exception as e:
+                logger.warning(f"Failed to remove container {container.short_id}: {e}")
+        
+        # Remove created but not started containers
+        created_containers = client.containers.list(all=True, filters={'status': 'created'})
+        for container in created_containers:
+            try:
+                container.remove(force=True)
+                cleanup_results['containers_removed'] += 1
+                logger.info(f"Removed created container: {container.short_id}")
+            except Exception as e:
+                logger.warning(f"Failed to remove container {container.short_id}: {e}")
+        
+        # Remove dangling images
+        try:
+            pruned = client.images.prune(filters={'dangling': True})
+            cleanup_results['images_removed'] = len(pruned.get('ImagesDeleted', []))
+            space_reclaimed = pruned.get('SpaceReclaimed', 0)
+            cleanup_results['space_reclaimed'] = f"{space_reclaimed / 1024 / 1024:.2f} MB"
+            logger.info(f"Removed {cleanup_results['images_removed']} dangling images, reclaimed {cleanup_results['space_reclaimed']}")
+        except Exception as e:
+            logger.warning(f"Failed to prune images: {e}")
+        
+        # Close client
+        client.close()
+        
+        return jsonify({
+            'success': True,
+            'message': f"Cleanup completed: {cleanup_results['containers_removed']} containers and {cleanup_results['images_removed']} images removed",
+            'details': cleanup_results
+        })
+        
+    except Exception as e:
+        logger.error(f"Docker cleanup failed: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/system/status')
+def system_status():
+    """Get system status including Docker resource usage"""
+    try:
+        client = docker.from_env()
+        
+        # Get container counts
+        running_containers = len(client.containers.list())
+        all_containers = len(client.containers.list(all=True))
+        stopped_containers = all_containers - running_containers
+        
+        # Get image counts
+        all_images = len(client.images.list())
+        dangling_images = len(client.images.list(filters={'dangling': True}))
+        
+        # Get basic system info
+        system_info = client.info()
+        
+        client.close()
+        
+        return jsonify({
+            'containers': {
+                'running': running_containers,
+                'stopped': stopped_containers,
+                'total': all_containers
+            },
+            'images': {
+                'total': all_images,
+                'dangling': dangling_images
+            },
+            'docker_version': system_info.get('ServerVersion', 'Unknown'),
+            'cleanup_recommended': stopped_containers > 5 or dangling_images > 10
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get system status: {e}")
+        return jsonify({
+            'error': str(e),
+            'containers': {'running': 0, 'stopped': 0, 'total': 0},
+            'images': {'total': 0, 'dangling': 0},
+            'docker_version': 'Unknown',
+            'cleanup_recommended': False
+        }), 500
+
+def cleanup_old_containers():
+    """Automatically clean up old containers created during builds"""
+    try:
+        client = docker.from_env()
+        removed_count = 0
+        
+        # Remove containers in 'created' state (often leftover from builds)
+        created_containers = client.containers.list(all=True, filters={'status': 'created'})
+        for container in created_containers:
+            try:
+                # Check if container is older than 10 minutes
+                from datetime import datetime, timezone
+                created_time = datetime.fromisoformat(container.attrs['Created'].replace('Z', '+00:00'))
+                current_time = datetime.now(timezone.utc)
+                if (current_time - created_time).total_seconds() > 600:  # 10 minutes
+                    container.remove(force=True)
+                    removed_count += 1
+                    logger.info(f"Auto-cleanup: Removed old created container {container.short_id}")
+            except Exception as e:
+                logger.warning(f"Failed to remove created container {container.short_id}: {e}")
+        
+        # Remove exited containers older than 30 minutes
+        exited_containers = client.containers.list(all=True, filters={'status': 'exited'})
+        for container in exited_containers:
+            try:
+                created_time = datetime.fromisoformat(container.attrs['Created'].replace('Z', '+00:00'))
+                current_time = datetime.now(timezone.utc)
+                if (current_time - created_time).total_seconds() > 1800:  # 30 minutes
+                    container.remove(force=True)
+                    removed_count += 1
+                    logger.info(f"Auto-cleanup: Removed old exited container {container.short_id}")
+            except Exception as e:
+                logger.warning(f"Failed to remove exited container {container.short_id}: {e}")
+        
+        # Clean up dangling images if we removed containers
+        if removed_count > 0:
+            try:
+                client.images.prune(filters={'dangling': True})
+                logger.info("Auto-cleanup: Pruned dangling images")
+            except Exception as e:
+                logger.warning(f"Failed to prune images during auto-cleanup: {e}")
+        
+        client.close()
+        logger.info(f"Auto-cleanup completed: {removed_count} containers removed")
+        
+    except Exception as e:
+        logger.error(f"Auto-cleanup failed: {e}")
