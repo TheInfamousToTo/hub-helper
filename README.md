@@ -196,11 +196,13 @@ curl -X POST http://localhost:5414/cleanup/docker
 Hub Helper includes automatic Docker cleanup features to prevent container accumulation:
 
 **Automatic Cleanup:**
+
 - Removes intermediate containers after each build
 - Cleans up old containers (created > 10 min, exited > 30 min) after deployments
 - Prunes dangling images to reclaim disk space
 
 **Manual Cleanup:**
+
 - Click the "Cleanup" button in the web interface
 - Use the `/cleanup/docker` API endpoint
 - Check system status with the "Status" button
