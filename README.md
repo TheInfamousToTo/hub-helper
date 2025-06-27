@@ -44,7 +44,23 @@ A streamlined deployment automation tool that simplifies pushing projects to Git
 3. **Start the Application**
 
    ```bash
-   docker-compose up -d --build
+   docker-compose up -d
+   ```
+
+   Or run directly with Docker:
+
+   ```bash
+   docker run -d --name hub-helper \
+     -p 5414:5414 \
+     -v /home/toto:/projects \
+     -v /var/run/docker.sock:/var/run/docker.sock \
+     -v /usr/bin/docker:/usr/bin/docker:ro \
+     -v hub-helper-data:/app/data \
+     -e PROJECTS_PATH=/projects \
+     -e SECRET_KEY=your-super-secret-key \
+     -e GITHUB_CLIENT_ID=your-client-id \
+     -e GITHUB_CLIENT_SECRET=your-client-secret \
+     theinfamoustoto/hub-helper:latest
    ```
 
 4. **Access the Interface**
@@ -95,22 +111,38 @@ For **Docker deployment**:
 
 ```yaml
 version: '3.8'
+
 services:
   hub-helper:
-    build: .
+    image: theinfamoustoto/hub-helper:latest
     ports:
       - "5414:5414"
     volumes:
+      # Mount your projects directory - CHANGE THIS PATH TO YOUR PROJECTS FOLDER
       - /home/toto:/projects
+      # Mount Docker socket to allow Docker operations from within container
       - /var/run/docker.sock:/var/run/docker.sock
+      # Mount Docker binary (if needed)
       - /usr/bin/docker:/usr/bin/docker:ro
+      # Mount data directory for persistent login storage
       - hub-helper-data:/app/data
     environment:
       - PROJECTS_PATH=/projects
-      - SECRET_KEY=your-secret-key
-      - GITHUB_CLIENT_ID=your-client-id
-      - GITHUB_CLIENT_SECRET=your-client-secret
+      - SECRET_KEY=your-super-secret-key-change-this
+      # GitHub OAuth App credentials (optional - get from GitHub Developer Settings)
+      - GITHUB_CLIENT_ID=your-github-client-id
+      - GITHUB_CLIENT_SECRET=your-github-client-secret
     restart: unless-stopped
+    networks:
+      - hub-helper-network
+
+networks:
+  hub-helper-network:
+    driver: bridge
+
+volumes:
+  hub-helper-data:
+    driver: local
 ```
 
 ## Security Features

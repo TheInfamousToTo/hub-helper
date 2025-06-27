@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   hub-helper:
-    build: .
+    image: theinfamoustoto/hub-helper:latest
     ports:
       - "5414:5414"
     volumes:
