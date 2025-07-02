@@ -597,14 +597,20 @@ def auth_status():
     return jsonify(status)
 
 @app.route('/version')
-def get_version():
-    """Get application version"""
+def get_version_string():
+    """Get application version as string"""
     try:
         with open('version', 'r') as f:
             version = f.read().strip()
-        return jsonify({'version': version})
+        return version
     except:
-        return jsonify({'version': 'v1.0'})
+        return 'v1.0'
+
+@app.route('/version')
+def get_version():
+    """Get application version endpoint"""
+    version = get_version_string()
+    return jsonify({'version': version})
 
 @app.route('/cleanup/docker', methods=['POST'])
 def cleanup_docker():
@@ -869,7 +875,7 @@ def health_check():
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
         'client_ip': client_ip,
-        'version': get_version(),
+        'version': get_version_string(),
         'analytics': {
             'external_api': ANALYTICS_API,
             'local_file_exists': os.path.exists(LOCAL_ANALYTICS_FILE)
@@ -881,6 +887,13 @@ def health_check():
         response = requests.get(f'{ANALYTICS_API}/analytics/hub-helper', timeout=3)
         health_info['analytics']['external_api_status'] = response.status_code
         health_info['analytics']['external_api_reachable'] = True
+        # Include the external API data if available
+        if response.status_code == 200:
+            try:
+                external_data = response.json()
+                health_info['analytics']['external_api_data'] = external_data
+            except:
+                health_info['analytics']['external_api_data'] = 'Unable to parse JSON response'
     except Exception as e:
         health_info['analytics']['external_api_status'] = f'Error: {str(e)}'
         health_info['analytics']['external_api_reachable'] = False

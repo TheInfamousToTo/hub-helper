@@ -371,6 +371,34 @@ hub-helper/
 - Implemented dual-source analytics (external + local backup)
 - Added analytics testing utilities
 
+## Changelog
+
+### v1.1.3 - Health Check Fix (Latest)
+
+- **Fixed critical health endpoint bug** - Resolved JSON serialization error causing 500 Internal Server Error
+- **Improved health diagnostics** - Health endpoint now properly returns JSON response instead of HTML error page
+- **Enhanced error handling** - Fixed Response object serialization issue in health check function
+- **Better debugging** - Health endpoint now includes external API data when available
+
+### v1.1.2 - Analytics Enhancement
+
+- Enhanced analytics tracking with external API integration
+- Added real-time global deployment counters
+- Improved UI with modern animations and hover effects
+- Fixed double-counting issues in analytics tracking
+
+### v1.1.1 - UI & Performance
+
+- Modern responsive UI with GitHub-themed dark interface
+- Added persistent authentication with secure credential encryption
+- Improved deployment progress feedback and error handling
+
+### v1.1.0 - Core Features
+
+- Initial release with GitHub and Docker Hub deployment automation
+- Project discovery and version management
+- Containerized deployment with Docker Compose support
+
 ## License
 
 MIT License. See LICENSE for details.
