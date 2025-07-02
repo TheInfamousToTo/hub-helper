@@ -168,6 +168,34 @@
             opacity: 0.5;
             pointer-events: none;
         }
+        .analytics-counters {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-right: 1rem;
+        }
+        .counter-item {
+            display: flex;
+            align-items: center;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .counter-item i {
+            margin-right: 0.5rem;
+        }
+        .counter-number {
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        .github-counter {
+            color: #e6edf3;
+        }
+        .docker-counter {
+            color: #1D63ED;
+        }
     </style>
 </head>
 <body>
@@ -177,7 +205,18 @@
                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Hub Helper Logo" style="width: 32px; height: 32px; margin-right: 0.5rem;">
                 Hub Helper
             </span>
-            <div>
+            <div class="d-flex align-items-center">
+                <!-- Analytics Counters -->
+                <div class="analytics-counters d-none d-md-flex">
+                    <div class="counter-item github-counter">
+                        <i class="fab fa-github"></i>
+                        <span class="counter-number" id="github-counter">0</span>
+                    </div>
+                    <div class="counter-item docker-counter">
+                        <i class="fab fa-docker"></i>
+                        <span class="counter-number" id="docker-counter">0</span>
+                    </div>
+                </div>
                 <button class="btn btn-outline-light me-2" onclick="location.reload()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
@@ -375,6 +414,9 @@
                     document.getElementById('commit-message').placeholder = `Release ${projectName} ${version}`;
                 }
             });
+
+            // Load analytics counters
+            loadAnalyticsCounters();
         });
 
         function selectProject(projectName) {
@@ -460,6 +502,12 @@
                     result.steps.forEach(step => {
                         updateProgressIndicator(step);
                     });
+                    
+                    // Refresh counters after successful deployment
+                    // Note: Analytics tracking is handled by the backend
+                    setTimeout(() => {
+                        loadAnalyticsCounters();
+                    }, 2000); // Wait 2 seconds for analytics to update
                 } else {
                     alert('Deployment failed: ' + result.error);
                 }
@@ -572,6 +620,39 @@
                 alert(statusMessage);
             } catch (error) {
                 alert('Failed to get system status: ' + error.message);
+            }
+        }
+
+        // Analytics tracking functions
+        const ANALYTICS_API = 'https://hub-backend.satrawi.cc';
+
+        async function loadAnalyticsCounters() {
+            try {
+                // Try external API first
+                const response = await fetch(`${ANALYTICS_API}/stats/hub-helper`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('github-counter').textContent = data.github_count || 0;
+                    document.getElementById('docker-counter').textContent = data.dockerhub_count || 0;
+                    return;
+                }
+            } catch (error) {
+                console.warn('External analytics API unavailable, trying local fallback:', error);
+            }
+            
+            try {
+                // Fallback to local endpoint
+                const response = await fetch('/analytics/counters');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('github-counter').textContent = data.github_count || 0;
+                    document.getElementById('docker-counter').textContent = data.dockerhub_count || 0;
+                }
+            } catch (error) {
+                console.warn('Failed to load analytics counters:', error);
+                // Keep default values of 0
             }
         }
     </script>

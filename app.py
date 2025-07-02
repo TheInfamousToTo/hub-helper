@@ -36,6 +36,67 @@ CREDENTIALS_FILE = os.path.join(DATA_DIR, 'credentials.json')
 # Ensure data directory exists
 os.makedirs(DATA_DIR, exist_ok=True)
 
+# Analytics configuration
+ANALYTICS_API = 'https://hub-backend.satrawi.cc'
+LOCAL_ANALYTICS_FILE = os.path.join(DATA_DIR, 'local_analytics.json')
+
+def track_deployment_analytics(push_type):
+    """Track deployment to external analytics API"""
+    try:
+        response = requests.post(
+            f'{ANALYTICS_API}/click',
+            json={
+                'project_name': 'hub-helper',
+                'push_type': push_type
+            },
+            timeout=5  # 5 second timeout
+        )
+        if response.status_code == 200:
+            logger.info(f"Successfully tracked {push_type} deployment to external API")
+        else:
+            logger.warning(f"Failed to track {push_type} deployment: HTTP {response.status_code}")
+    except Exception as e:
+        logger.warning(f"Failed to track {push_type} deployment to external API: {e}")
+    
+    # Always update local analytics as backup
+    update_local_analytics(push_type)
+
+def update_local_analytics(push_type):
+    """Update local analytics counter"""
+    try:
+        # Load existing counters
+        if os.path.exists(LOCAL_ANALYTICS_FILE):
+            with open(LOCAL_ANALYTICS_FILE, 'r') as f:
+                analytics = json.load(f)
+        else:
+            analytics = {'github_count': 0, 'dockerhub_count': 0}
+        
+        # Update counter
+        if push_type == 'github':
+            analytics['github_count'] = analytics.get('github_count', 0) + 1
+        elif push_type == 'dockerhub':
+            analytics['dockerhub_count'] = analytics.get('dockerhub_count', 0) + 1
+        
+        # Save updated counters
+        with open(LOCAL_ANALYTICS_FILE, 'w') as f:
+            json.dump(analytics, f)
+        
+        logger.info(f"Updated local analytics: {push_type} count is now {analytics.get(push_type + '_count', 0)}")
+        
+    except Exception as e:
+        logger.error(f"Failed to update local analytics for {push_type}: {e}")
+
+def get_local_analytics():
+    """Get local analytics counters"""
+    try:
+        if os.path.exists(LOCAL_ANALYTICS_FILE):
+            with open(LOCAL_ANALYTICS_FILE, 'r') as f:
+                return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load local analytics: {e}")
+    
+    return {'github_count': 0, 'dockerhub_count': 0}
+
 def get_encryption_key():
     """Get or create encryption key for storing credentials"""
     key_file = os.path.join(DATA_DIR, 'key.key')
@@ -382,6 +443,9 @@ def push_to_github(project_path, repo_name, commit_message, project_version='v1.
         if tagged and tag_pushed:
             message += f' with tag {project_version}'
         
+        # Track successful GitHub deployment
+        track_deployment_analytics('github')
+        
         return {
             'step': 'GitHub Push',
             'success': True,
@@ -452,6 +516,9 @@ def push_to_dockerhub(project_path, repo_name, project_version='v1.0.0'):
             logger.info("Cleaned up dangling Docker images")
         except Exception as cleanup_error:
             logger.warning(f"Failed to clean up dangling images: {cleanup_error}")
+        
+        # Track successful Docker Hub deployment
+        track_deployment_analytics('dockerhub')
         
         return {
             'step': 'Docker Push',
@@ -683,6 +750,97 @@ def cleanup_old_containers():
         
     except Exception as e:
         logger.error(f"Auto-cleanup failed: {e}")
+
+@app.route('/analytics/debug')
+def debug_analytics():
+    """Debug endpoint to check analytics API status"""
+    debug_info = {
+        'analytics_api': ANALYTICS_API,
+        'local_analytics': get_local_analytics(),
+        'endpoints_tested': []
+    }
+    
+    # Test different endpoints
+    possible_endpoints = [
+        f'{ANALYTICS_API}/stats/hub-helper',
+        f'{ANALYTICS_API}/stats',
+        f'{ANALYTICS_API}/analytics/hub-helper',
+        f'{ANALYTICS_API}/analytics',
+        f'{ANALYTICS_API}/health'
+    ]
+    
+    for endpoint in possible_endpoints:
+        try:
+            response = requests.get(endpoint, timeout=5)
+            debug_info['endpoints_tested'].append({
+                'url': endpoint,
+                'status_code': response.status_code,
+                'content_length': len(response.text),
+                'headers': dict(response.headers)
+            })
+        except Exception as e:
+            debug_info['endpoints_tested'].append({
+                'url': endpoint,
+                'error': str(e)
+            })
+    
+    return jsonify(debug_info)
+
+@app.route('/analytics/counters')
+def get_analytics_counters():
+    """Get analytics counters from external API with fallback"""
+    try:
+        # The working endpoint is /analytics/hub-helper
+        response = requests.get(f'{ANALYTICS_API}/analytics/hub-helper', timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Successfully fetched analytics from external API")
+            return jsonify({
+                'success': True,
+                'github_count': data.get('github_clicks', 0),
+                'dockerhub_count': data.get('dockerhub_clicks', 0),
+                'source': 'external_api',
+                'total_clicks': data.get('total_clicks', 0)
+            })
+        else:
+            logger.debug(f"External API returned {response.status_code}")
+    except Exception as e:
+        logger.warning(f"Failed to fetch analytics from external API: {e}")
+    
+    # Fallback: use local analytics
+    logger.info("Using local analytics counters as fallback")
+    local_analytics = get_local_analytics()
+    return jsonify({
+        'success': True,
+        'github_count': local_analytics.get('github_count', 0),
+        'dockerhub_count': local_analytics.get('dockerhub_count', 0),
+        'source': 'local_backup'
+    })
+
+@app.route('/analytics/reset', methods=['POST'])
+def reset_analytics():
+    """Reset analytics counters (local only)"""
+    try:
+        # Reset local analytics file
+        analytics = {'github_count': 0, 'dockerhub_count': 0}
+        
+        with open(LOCAL_ANALYTICS_FILE, 'w') as f:
+            json.dump(analytics, f)
+        
+        logger.info("Analytics counters reset successfully")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Local analytics counters reset to zero',
+            'github_count': 0,
+            'dockerhub_count': 0
+        })
+    except Exception as e:
+        logger.error(f"Failed to reset analytics: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     # Configure logging for production

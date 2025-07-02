@@ -2,15 +2,34 @@
 
 ![Hub Helper](assets/hub-helper-main.png)
 
-A streamlined deployment automation tool that simplifies pushing projects to GitHub and Docker Hub with a modern web interface, persistent authentication, and containerized deployment.
+A streamlined deployment automation tool that simplifies pushing projects to GitHub and Docker Hub with a modern web interface, persistent authentication, containerized deployment, and **real-time global analytics tracking**.
+
+## ✨ New Features
+
+### 📊 **Global Analytics Counters**
+
+- **Real-time deployment tracking** - Live counters showing total GitHub and Docker Hub deployments across all users
+- **Integrated analytics API** - Connects to external analytics backend for global statistics
+- **Fallback local tracking** - Maintains local analytics as backup when external API is unavailable
+- **Visual counters in navbar** - GitHub and Docker Hub icons with live deployment counts
+- **Accurate tracking** - Fixed double-counting issues for precise analytics
+
+### 🔄 **Enhanced User Experience**
+
+- **Persistent authentication** with secure credential encryption
+- **Real-time deployment progress** with detailed step-by-step feedback
+- **Improved error handling** and user feedback
+- **Modern responsive UI** optimized for all screen sizes
+- **Automatic counter updates** after successful deployments
 
 ## Features
 
+• **Global Analytics** - real-time tracking of deployments across all users with live counters
 • **Persistent Authentication** - securely stores GitHub OAuth tokens and Docker Hub credentials with encryption
 • **Selective Deployment** - choose to deploy to GitHub, Docker Hub, or both with checkbox selection
 • **Version Management** - semantic versioning support with automatic Git tagging and Docker image tagging
 • **Project Discovery** - automatically detects projects with Git repositories and Dockerfiles
-• **Modern UI** - GitHub-themed dark interface with responsive design
+• **Modern UI** - GitHub-themed dark interface with responsive design and live analytics
 • **Containerized** - fully containerized deployment with Docker Compose support
 • **Git Integration** - automatic Git configuration and safe directory handling
 • **Debug Tools** - built-in debugging endpoints and storage management utilities
@@ -95,6 +114,28 @@ The application automatically:
 - Tags Docker images with both `latest` and version-specific tags
 - Generates appropriate commit messages
 
+### Analytics & Tracking
+
+Hub Helper now includes **global analytics tracking** to show deployment statistics:
+
+**Real-time Counters:**
+
+- GitHub deployments counter (visible in navbar)
+- Docker Hub deployments counter (visible in navbar)
+- Live updates after each successful deployment
+
+**Data Sources:**
+
+- **Fallback**: Local file-based analytics for backup tracking
+- **Endpoints**: `/analytics/counters` for current counts, `/analytics/reset` for admin reset
+
+**Features:**
+
+- Accurate tracking (fixed double-counting issues)
+- Real-time updates across all users
+- Persistent local backup
+- API integration with error handling
+
 ### Project Requirements
 
 For **GitHub deployment**:
@@ -154,11 +195,22 @@ volumes:
 
 ## API Endpoints
 
+### Core Endpoints
+
 • `GET /`: Main application interface
 • `GET /version`: Application version information
 • `GET /auth/status`: Authentication status check
 • `GET /projects`: List discovered projects
 • `POST /deploy`: Deploy project to selected targets
+
+### Analytics Endpoints
+
+• `GET /analytics/counters`: Get current global deployment counters
+• `POST /analytics/reset`: Reset local analytics counters (admin only)
+• `GET /analytics/debug`: Debug analytics information
+
+### System & Debug Endpoints
+
 • `GET /debug/storage`: Debug persistent storage (development)
 • `POST /cleanup/docker`: Clean up stopped containers and unused images
 • `GET /system/status`: Get Docker system status and resource usage
@@ -218,7 +270,7 @@ Hub Helper includes automatic Docker cleanup features to prevent container accum
 
 ### File Structure
 
-```
+```text
 hub-helper/
 ├── app.py              # Main Flask application
 ├── requirements.txt    # Python dependencies
@@ -226,8 +278,35 @@ hub-helper/
 ├── docker-compose.yml # Docker Compose setup
 ├── templates/         # HTML templates
 ├── static/           # Static assets
-└── assets/           # Project assets and logos
+├── assets/           # Project assets and logos
+└── test_analytics.py  # Analytics testing script
 ```
+
+## 📈 Recent Updates
+
+### Version 1.1.0 - Analytics Integration
+
+**New Features:**
+
+- Added global analytics tracking with real-time counters
+- Integrated external analytics API (hub-backend.satrawi.cc)
+- Added fallback local analytics tracking
+- Visual deployment counters in navbar with GitHub and Docker Hub icons
+
+**Improvements:**
+
+- Fixed double-counting issues in analytics tracking
+- Enhanced error handling for API connectivity
+- Added analytics debug endpoints
+- Improved UI responsiveness and user feedback
+
+**Technical Changes:**
+
+- Added `/analytics/counters` endpoint for real-time data
+- Added `/analytics/reset` endpoint for admin functions
+- Added `/analytics/debug` endpoint for troubleshooting
+- Implemented dual-source analytics (external + local backup)
+- Added analytics testing utilities
 
 ## License
 
