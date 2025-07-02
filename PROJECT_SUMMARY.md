@@ -48,7 +48,7 @@
 ### 🚀 Global Analytics Integration
 
 - **Real-time Deployment Tracking**: Added live counters showing total GitHub and Docker Hub deployments across all users
-- **External API Integration**: Connected to analytics backend at hub-backend.satrawi.cc for global statistics
+- **External API Integration**: Connected to analytics backend for global statistics
 - **Dual-Source Analytics**: Implemented both external API and local file backup for reliability
 - **Fixed Double-Counting**: Resolved analytics double-counting issues for accurate tracking
 

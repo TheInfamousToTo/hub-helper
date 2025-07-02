@@ -339,7 +339,7 @@ hub-helper/
 **New Features:**
 
 - Added global analytics tracking with real-time animated counters
-- Integrated external analytics API (hub-backend.satrawi.cc)
+- Integrated external analytics API
 - Added fallback local analytics tracking for reliability
 - Visual deployment counters in navbar with GitHub and Docker Hub icons
 - Interactive hover tooltips explaining counter functionality
