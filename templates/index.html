@@ -674,6 +674,9 @@
                 <button class="btn btn-outline-info me-2" onclick="showSystemStatus()" title="Show Docker system status">
                     <i class="fas fa-info-circle"></i> Status
                 </button>
+                <button class="btn btn-outline-secondary me-2" onclick="showHealthCheck()" title="Show application health and analytics status">
+                    <i class="fas fa-heartbeat"></i> Health
+                </button>
                 <a href="/logout" class="btn btn-outline-light" onclick="handleLogoutClick()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
@@ -1148,6 +1151,47 @@
             }
         }
 
+        // Health check function for diagnostics
+        async function showHealthCheck() {
+            const healthBtn = event.target.closest('button');
+            addButtonPressEffect(healthBtn);
+            addButtonLoading(healthBtn);
+            
+            try {
+                const response = await fetch('/health');
+                const health = await response.json();
+                removeButtonLoading(healthBtn);
+                flashButtonSuccess(healthBtn);
+
+                let healthMessage = `Application Health Check:\n\n`;
+                healthMessage += `Status: ${health.status}\n`;
+                healthMessage += `Version: ${health.version}\n`;
+                healthMessage += `Client IP: ${health.client_ip}\n`;
+                healthMessage += `Timestamp: ${health.timestamp}\n\n`;
+                
+                healthMessage += `Analytics Status:\n`;
+                healthMessage += `- External API: ${health.analytics.external_api}\n`;
+                healthMessage += `- External API Reachable: ${health.analytics.external_api_reachable ? '✅' : '❌'}\n`;
+                healthMessage += `- External API Status: ${health.analytics.external_api_status}\n`;
+                healthMessage += `- Local File Exists: ${health.analytics.local_file_exists ? '✅' : '❌'}\n`;
+                
+                if (health.analytics.local_data) {
+                    healthMessage += `- Local GitHub Count: ${health.analytics.local_data.github_count || 0}\n`;
+                    healthMessage += `- Local Docker Count: ${health.analytics.local_data.dockerhub_count || 0}\n`;
+                }
+                
+                if (health.analytics.local_error) {
+                    healthMessage += `- Local Error: ${health.analytics.local_error}\n`;
+                }
+
+                alert(healthMessage);
+            } catch (error) {
+                removeButtonLoading(healthBtn);
+                flashButtonError(healthBtn);
+                alert('Failed to get health status: ' + error.message);
+            }
+        }
+
         // Analytics tracking functions
         const ANALYTICS_API = 'https://hub-backend.satrawi.cc';
 
@@ -1161,12 +1205,14 @@
             
             try {
                 // Try external API first
-                const response = await fetch(`${ANALYTICS_API}/stats/hub-helper`);
+                const response = await fetch(`${ANALYTICS_API}/analytics/hub-helper`);
                 const data = await response.json();
                 
-                if (data.success) {
-                    updateCounterWithAnimation('github-counter', data.github_count || 0);
-                    updateCounterWithAnimation('docker-counter', data.dockerhub_count || 0);
+                if (data.success || (response.ok && data.github_clicks !== undefined)) {
+                    const githubCount = data.github_clicks || data.github_count || 0;
+                    const dockerCount = data.dockerhub_clicks || data.dockerhub_count || 0;
+                    updateCounterWithAnimation('github-counter', githubCount);
+                    updateCounterWithAnimation('docker-counter', dockerCount);
                     return;
                 }
             } catch (error) {
@@ -1176,14 +1222,22 @@
             try {
                 // Fallback to local endpoint
                 const response = await fetch('/analytics/counters');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
+                console.log('Local analytics response:', data);
                 
                 if (data.success) {
                     updateCounterWithAnimation('github-counter', data.github_count || 0);
                     updateCounterWithAnimation('docker-counter', data.dockerhub_count || 0);
+                } else {
+                    console.warn('Local analytics API returned success: false');
                 }
             } catch (error) {
-                console.warn('Failed to load analytics counters:', error);
+                console.error('Failed to load analytics counters:', error);
                 // Keep default values of 0
                 githubCounter.classList.remove('loading');
                 dockerCounter.classList.remove('loading');

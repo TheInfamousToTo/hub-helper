@@ -11,9 +11,13 @@ import logging
 from datetime import datetime
 from cryptography.fernet import Fernet
 import base64
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
+
+# Enable CORS for all routes
+CORS(app)
 
 # Configure logging
 logging.basicConfig(
@@ -789,8 +793,12 @@ def debug_analytics():
 @app.route('/analytics/counters')
 def get_analytics_counters():
     """Get analytics counters from external API with fallback"""
+    client_ip = request.environ.get('HTTP_X_REAL_IP', request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr))
+    logger.info(f"Analytics request from {client_ip}")
+    
     try:
         # The working endpoint is /analytics/hub-helper
+        logger.debug(f"Attempting to fetch analytics from {ANALYTICS_API}/analytics/hub-helper")
         response = requests.get(f'{ANALYTICS_API}/analytics/hub-helper', timeout=5)
         if response.status_code == 200:
             data = response.json()
@@ -803,19 +811,29 @@ def get_analytics_counters():
                 'total_clicks': data.get('total_clicks', 0)
             })
         else:
-            logger.debug(f"External API returned {response.status_code}")
+            logger.debug(f"External API returned {response.status_code}: {response.text}")
     except Exception as e:
         logger.warning(f"Failed to fetch analytics from external API: {e}")
     
     # Fallback: use local analytics
     logger.info("Using local analytics counters as fallback")
-    local_analytics = get_local_analytics()
-    return jsonify({
-        'success': True,
-        'github_count': local_analytics.get('github_count', 0),
-        'dockerhub_count': local_analytics.get('dockerhub_count', 0),
-        'source': 'local_backup'
-    })
+    try:
+        local_analytics = get_local_analytics()
+        return jsonify({
+            'success': True,
+            'github_count': local_analytics.get('github_count', 0),
+            'dockerhub_count': local_analytics.get('dockerhub_count', 0),
+            'source': 'local_backup'
+        })
+    except Exception as e:
+        logger.error(f"Failed to get local analytics: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'github_count': 0,
+            'dockerhub_count': 0,
+            'source': 'default'
+        }), 500
 
 @app.route('/analytics/reset', methods=['POST'])
 def reset_analytics():
@@ -841,6 +859,40 @@ def reset_analytics():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for diagnostics"""
+    client_ip = request.environ.get('HTTP_X_REAL_IP', request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr))
+    
+    health_info = {
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'client_ip': client_ip,
+        'version': get_version(),
+        'analytics': {
+            'external_api': ANALYTICS_API,
+            'local_file_exists': os.path.exists(LOCAL_ANALYTICS_FILE)
+        }
+    }
+    
+    # Test external analytics API connectivity
+    try:
+        response = requests.get(f'{ANALYTICS_API}/analytics/hub-helper', timeout=3)
+        health_info['analytics']['external_api_status'] = response.status_code
+        health_info['analytics']['external_api_reachable'] = True
+    except Exception as e:
+        health_info['analytics']['external_api_status'] = f'Error: {str(e)}'
+        health_info['analytics']['external_api_reachable'] = False
+    
+    # Check local analytics
+    try:
+        local_data = get_local_analytics()
+        health_info['analytics']['local_data'] = local_data
+    except Exception as e:
+        health_info['analytics']['local_error'] = str(e)
+    
+    return jsonify(health_info)
 
 if __name__ == '__main__':
     # Configure logging for production
