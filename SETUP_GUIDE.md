@@ -1,8 +1,51 @@
-# Hub Helper v1.0 - Complete Setup Guide
+# Hub Helper v1.1.2 - Complete Setup Guide
 
 ![Hub Helper](assets/hub-helper-main.png)
 
-**Version 1.0** - Your deployment automation companion
+**Version 1.1.2** - Your deployment automation companion with global analytics and premium animated UI
+
+## ✨ What's New in v1.1.2
+
+### 🎮 Enhanced Navbar Button Animations
+- **Premium button effects** with modern hover animations (lift, ripple, scale)
+- **Loading state feedback** with visual spinners for async operations
+- **Success/error flash feedback** with color-coded button responses
+- **Press effect animations** providing tactile feedback on button clicks
+- **Glass morphism design** with backdrop blur and gradient effects
+- **Staggered entrance animations** for sequential button appearance
+
+### 🔄 Improved Button Functionality
+- **Refresh Button**: Enhanced with loading state during page reload
+- **Cleanup Button**: Visual feedback during Docker cleanup operations
+- **Status Button**: Loading animation while fetching system information
+- **Logout Button**: Smooth transition animation before redirect
+
+### 🎨 Visual Design Enhancements
+- **Glass morphism navbar** with translucent background and backdrop blur
+- **Gradient button backgrounds** with subtle overlay effects
+- **Animated background pattern** with slow-shifting colored gradient orbs
+- **Enhanced CSS transitions** with smooth cubic-bezier timing functions
+
+## ✨ Previous Features (v1.1.0)
+
+### 📊 Global Analytics Integration
+- **Live deployment counters** in the navbar showing total GitHub and Docker Hub pushes across all users
+- **Real-time updates** with smooth animations after each deployment
+- **Interactive tooltips** explaining counter functionality on hover
+- **Dual-source tracking** with external API and local backup for reliability
+
+### 🎨 Premium Animation System
+- **Modern hover effects** with lift, scale, and shimmer animations
+- **Floating counters** with gentle continuous motion
+- **Multi-color pulse animations** during counter updates
+- **Loading states** with elegant pulsing effects
+- **Hardware-accelerated** animations for smooth 60fps performance
+
+### 🛠️ Enhanced Features
+- **Fixed double-counting** issues for accurate analytics
+- **Automatic refresh** every 30 seconds with visual feedback
+- **Debug endpoints** for troubleshooting analytics
+- **Cross-browser compatibility** for all modern browsers
 
 ## 🚀 Quick Setup
 
@@ -68,9 +111,32 @@ cd /home/toto/hub-helper
 
 The script will prompt you for your GitHub OAuth credentials.
 
+## 🎨 New User Interface Features
+
+### Analytics Counters
+- **Location**: Top-right corner of the navbar
+- **Functionality**: Shows total deployments across all Hub Helper users
+- **GitHub Counter**: Displays total GitHub pushes with GitHub icon
+- **Docker Hub Counter**: Displays total Docker Hub pushes with Docker icon
+- **Tooltips**: Hover over counters to see explanatory tooltips
+- **Real-time Updates**: Counters update automatically after deployments
+
+### Modern Animations
+- **Hover Effects**: Counters lift and scale when you hover over them
+- **Floating Motion**: Gentle floating animation for visual appeal
+- **Shimmer Effect**: Light sweep across counters on hover
+- **Pulse Animations**: Multi-color pulse when counters update
+- **Loading States**: Elegant animations while fetching data
+
+### Visual Feedback
+- **Color Coding**: GitHub (white), Docker Hub (blue) themed hover states
+- **Smooth Transitions**: All animations use smooth CSS transitions
+- **Performance**: Hardware-accelerated for 60fps smooth motion
+- **Responsive**: Works perfectly on all screen sizes
+
 ## 🔐 Persistent Login Feature
 
-The Hub Helper now saves your login credentials securely:
+The Hub Helper saves your login credentials securely:
 
 - **Encrypted Storage**: Credentials are encrypted and stored in `/app/data/credentials.json`
 - **Auto-Login**: When you restart the container, you'll stay logged in

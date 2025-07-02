@@ -13,9 +13,50 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         .navbar {
-            background-color: #21262d;
-            border-bottom: 1px solid #30363d;
+            position: relative;
+            background: rgba(33, 38, 45, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(48, 54, 61, 0.3);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
         }
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(88, 166, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(210, 153, 34, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(35, 134, 54, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% {
+                background: 
+                    radial-gradient(circle at 20% 50%, rgba(88, 166, 255, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(210, 153, 34, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 80%, rgba(35, 134, 54, 0.1) 0%, transparent 50%);
+            }
+            33% {
+                background: 
+                    radial-gradient(circle at 70% 30%, rgba(88, 166, 255, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 30% 70%, rgba(210, 153, 34, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 90% 20%, rgba(35, 134, 54, 0.1) 0%, transparent 50%);
+            }
+            66% {
+                background: 
+                    radial-gradient(circle at 10% 80%, rgba(88, 166, 255, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 60% 10%, rgba(210, 153, 34, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 60%, rgba(35, 134, 54, 0.1) 0%, transparent 50%);
+            }
+        }
+        
         .navbar-brand {
             color: #e6edf3 !important;
             font-weight: 600;
@@ -66,6 +107,292 @@
             background-color: #30363d;
             border-color: #8b949e;
             color: #e6edf3;
+        }
+        
+        /* Enhanced Navbar Button Animations */
+        .navbar .btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center;
+            opacity: 1 !important;
+        }
+        
+        /* Button hover lift effect */
+        .navbar .btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        /* Button active/click effect */
+        .navbar .btn:active {
+            transform: translateY(0) scale(0.98);
+            transition: all 0.1s ease;
+        }
+        
+        /* Ripple effect for buttons */
+        .navbar .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+            z-index: -1;
+        }
+        
+        .navbar .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Specific button color enhancements */
+        .navbar .btn-outline-light {
+            background: linear-gradient(135deg, rgba(240, 246, 252, 0.1), rgba(240, 246, 252, 0.05));
+            border: 1px solid rgba(240, 246, 252, 0.3);
+            backdrop-filter: blur(10px);
+            color: #f0f6fc;
+        }
+        
+        .navbar .btn-outline-light:hover {
+            background: linear-gradient(135deg, rgba(240, 246, 252, 0.2), rgba(240, 246, 252, 0.1));
+            border-color: #ffffff;
+            color: #ffffff;
+            box-shadow: 0 8px 25px rgba(240, 246, 252, 0.25);
+        }
+        
+        .navbar .btn-outline-warning {
+            background: linear-gradient(135deg, rgba(210, 153, 34, 0.1), rgba(210, 153, 34, 0.05));
+            border: 1px solid rgba(210, 153, 34, 0.3);
+            backdrop-filter: blur(10px);
+            color: #d29922;
+        }
+        
+        .navbar .btn-outline-warning:hover {
+            background: linear-gradient(135deg, rgba(210, 153, 34, 0.2), rgba(210, 153, 34, 0.1));
+            border-color: #f2cc60;
+            color: #f2cc60;
+            box-shadow: 0 8px 25px rgba(210, 153, 34, 0.35);
+        }
+        
+        .navbar .btn-outline-info {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(88, 166, 255, 0.05));
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            backdrop-filter: blur(10px);
+            color: #58a6ff;
+        }
+        
+        .navbar .btn-outline-info:hover {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.2), rgba(88, 166, 255, 0.1));
+            border-color: #79c0ff;
+            color: #79c0ff;
+            box-shadow: 0 8px 25px rgba(88, 166, 255, 0.35);
+        }
+        
+        /* Icon animations within buttons */
+        .navbar .btn i {
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .btn:hover i {
+            transform: scale(1.2);
+        }
+        
+        /* Specific icon animations for each button type */
+        .navbar .btn:hover .fa-sync-alt {
+            transform: rotate(180deg) scale(1.2);
+        }
+        
+        .navbar .btn:hover .fa-broom {
+            transform: translateY(-2px) scale(1.2);
+        }
+        
+        .navbar .btn:hover .fa-chart-bar {
+            transform: scale(1.3);
+        }
+        
+        .navbar .btn:hover .fa-sign-out-alt {
+            transform: translateX(3px) scale(1.2);
+        }
+        
+        /* Pulsing animation for cleanup button */
+        .navbar .btn-outline-warning {
+            animation: subtlePulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes subtlePulse {
+            0%, 100% { 
+                box-shadow: 0 0 5px rgba(210, 153, 34, 0.3);
+            }
+            50% { 
+                box-shadow: 0 0 15px rgba(210, 153, 34, 0.5);
+            }
+        }
+        
+        /* Loading state for buttons */
+        .navbar .btn.loading {
+            position: relative;
+            color: transparent !important;
+        }
+        
+        .navbar .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Floating animation for navbar buttons */
+        .navbar .btn {
+            opacity: 1 !important;
+            animation: buttonFloat 8s ease-in-out infinite;
+        }
+        
+        .navbar .btn:nth-child(1) { animation-delay: 0s; }
+        .navbar .btn:nth-child(2) { animation-delay: -2s; }
+        .navbar .btn:nth-child(3) { animation-delay: -4s; }
+        .navbar .btn:nth-child(4) { animation-delay: -6s; }
+        
+        @keyframes buttonFloat {
+            0%, 100% { 
+                transform: translateY(0px);
+            }
+            50% { 
+                transform: translateY(-1px);
+            }
+        }
+        
+        @keyframes buttonEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Disable floating on hover to prioritize hover effects */
+        .navbar .btn:hover {
+            animation: none;
+        }
+        
+        /* Enhanced button feedback states */
+        .navbar .btn.btn-success-flash {
+            background-color: #238636 !important;
+            border-color: #238636 !important;
+            color: #ffffff !important;
+            animation: successFlash 0.6s ease;
+        }
+        
+        .navbar .btn.btn-error-flash {
+            background-color: #da3633 !important;
+            border-color: #da3633 !important;
+            color: #ffffff !important;
+            animation: errorFlash 0.6s ease;
+        }
+        
+        @keyframes successFlash {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(35, 134, 54, 0.6);
+            }
+            50% { 
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(35, 134, 54, 0.8);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(35, 134, 54, 0.6);
+            }
+        }
+        
+        @keyframes errorFlash {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(218, 54, 51, 0.6);
+            }
+            50% { 
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(218, 54, 51, 0.8);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(218, 54, 51, 0.6);
+            }
+        }
+        
+        /* Enhanced loading state with better spinner */
+        .navbar .btn.loading i {
+            opacity: 0;
+        }
+        
+        .navbar .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-right: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spinEnhanced 1s linear infinite;
+        }
+        
+        @keyframes spinEnhanced {
+            0% { 
+                transform: rotate(0deg);
+                border-top-color: currentColor;
+                border-right-color: transparent;
+            }
+            25% {
+                border-top-color: currentColor;
+                border-right-color: currentColor;
+            }
+            50% { 
+                transform: rotate(180deg);
+                border-top-color: transparent;
+                border-right-color: currentColor;
+            }
+            75% {
+                border-top-color: transparent;
+                border-right-color: transparent;
+            }
+            100% { 
+                transform: rotate(360deg);
+                border-top-color: currentColor;
+                border-right-color: transparent;
+            }
+        }
+        
+        /* Button press effect enhancement */
+        .navbar .btn.btn-pressed {
+            transform: scale(0.95);
+            transition: transform 0.1s ease;
         }
         .modal-content {
             background-color: #21262d;
@@ -179,22 +506,143 @@
             align-items: center;
             background-color: #0d1117;
             border: 1px solid #30363d;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 0.5rem 0.75rem;
             font-size: 0.875rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
         }
+        
+        /* Shimmer effect */
+        .counter-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        /* Hover animations */
+        .counter-item:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            border-color: #58a6ff;
+        }
+        
+        .counter-item:hover::before {
+            left: 100%;
+        }
+        
+        /* Platform-specific hover colors */
+        .counter-item.github-counter:hover {
+            border-color: #f0f6fc;
+            background-color: rgba(240, 246, 252, 0.05);
+        }
+        
+        .counter-item.docker-counter:hover {
+            border-color: #2496ed;
+            background-color: rgba(36, 150, 237, 0.05);
+        }
+        
+        /* Icon animations */
         .counter-item i {
             margin-right: 0.5rem;
+            transition: all 0.3s ease;
         }
+        
+        .counter-item:hover i {
+            transform: scale(1.2) rotate(5deg);
+            filter: brightness(1.3);
+        }
+        
+        /* Counter number styling and animations */
         .counter-number {
             font-weight: 600;
             color: #58a6ff;
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 20px;
+            text-align: center;
         }
+        
+        /* Pulse animation for counter updates */
+        .counter-number.updating {
+            animation: counterPulse 0.8s ease-in-out;
+        }
+        
+        @keyframes counterPulse {
+            0% { 
+                transform: scale(1); 
+                color: #58a6ff;
+            }
+            25% { 
+                transform: scale(1.3); 
+                color: #7c3aed;
+                text-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
+            }
+            50% { 
+                transform: scale(1.1); 
+                color: #06d6a0;
+                text-shadow: 0 0 15px rgba(6, 214, 160, 0.6);
+            }
+            75% { 
+                transform: scale(1.2); 
+                color: #ffd60a;
+                text-shadow: 0 0 15px rgba(255, 214, 10, 0.6);
+            }
+            100% { 
+                transform: scale(1); 
+                color: #58a6ff;
+            }
+        }
+        
+        /* Floating animation */
+        .counter-item {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .counter-item.docker-counter {
+            animation-delay: -3s;
+        }
+        
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px);
+            }
+            50% { 
+                transform: translateY(-2px);
+            }
+        }
+        
+        /* Platform colors */
         .github-counter {
             color: #e6edf3;
         }
         .docker-counter {
             color: #1D63ED;
+        }
+        
+        /* Loading state animation */
+        .counter-number.loading {
+            animation: loadingDots 1.5s infinite;
+        }
+        
+        @keyframes loadingDots {
+            0%, 20% { opacity: 1; }
+            50% { opacity: 0.5; }
+            80%, 100% { opacity: 1; }
+        }
+        
+        /* Initial entrance animation */
+        .counter-number {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
     </style>
 </head>
@@ -208,16 +656,16 @@
             <div class="d-flex align-items-center">
                 <!-- Analytics Counters -->
                 <div class="analytics-counters d-none d-md-flex">
-                    <div class="counter-item github-counter">
+                    <div class="counter-item github-counter" title="Total number of times users have pushed code to GitHub using this tool">
                         <i class="fab fa-github"></i>
                         <span class="counter-number" id="github-counter">0</span>
                     </div>
-                    <div class="counter-item docker-counter">
+                    <div class="counter-item docker-counter" title="Total number of times users have pushed images to Docker Hub using this tool">
                         <i class="fab fa-docker"></i>
                         <span class="counter-number" id="docker-counter">0</span>
                     </div>
                 </div>
-                <button class="btn btn-outline-light me-2" onclick="location.reload()">
+                <button class="btn btn-outline-light me-2" onclick="handleRefreshClick()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
                 <button class="btn btn-outline-warning me-2" onclick="cleanupDocker()" title="Clean up stopped containers and unused images">
@@ -226,7 +674,7 @@
                 <button class="btn btn-outline-info me-2" onclick="showSystemStatus()" title="Show Docker system status">
                     <i class="fas fa-info-circle"></i> Status
                 </button>
-                <a href="/logout" class="btn btn-outline-light">
+                <a href="/logout" class="btn btn-outline-light" onclick="handleLogoutClick()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
@@ -415,8 +863,8 @@
                 }
             });
 
-            // Load analytics counters
-            loadAnalyticsCounters();
+            // Initialize analytics counters with animations
+            initializeCounters();
         });
 
         function selectProject(projectName) {
@@ -569,11 +1017,75 @@
             })
             .catch(error => console.log('Version info not available'));
 
-        // Docker cleanup function
+        // Enhanced Refresh function
+        function handleRefreshClick() {
+            const refreshBtn = event.target.closest('button') || event.target.closest('a');
+            addButtonPressEffect(refreshBtn);
+            addButtonLoading(refreshBtn);
+            
+            // Add a small delay to show the loading animation
+            setTimeout(() => {
+                location.reload();
+            }, 300);
+        }
+        
+        // Enhanced Logout function
+        function handleLogoutClick() {
+            const logoutBtn = event.target.closest('a') || event.target.closest('button');
+            addButtonPressEffect(logoutBtn);
+            
+            // Prevent default link behavior momentarily to show animation
+            event.preventDefault();
+            
+            // Add loading state and redirect after animation
+            addButtonLoading(logoutBtn);
+            setTimeout(() => {
+                window.location.href = '/logout';
+            }, 300);
+        }
+
+        // Enhanced button feedback utilities
+        function addButtonLoading(button) {
+            button.classList.add('loading');
+            button.disabled = true;
+        }
+        
+        function removeButtonLoading(button) {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+        
+        function flashButtonSuccess(button, duration = 1000) {
+            button.classList.add('btn-success-flash');
+            setTimeout(() => {
+                button.classList.remove('btn-success-flash');
+            }, duration);
+        }
+        
+        function flashButtonError(button, duration = 1000) {
+            button.classList.add('btn-error-flash');
+            setTimeout(() => {
+                button.classList.remove('btn-error-flash');
+            }, duration);
+        }
+        
+        function addButtonPressEffect(button) {
+            button.classList.add('btn-pressed');
+            setTimeout(() => {
+                button.classList.remove('btn-pressed');
+            }, 150);
+        }
+
+        // Enhanced Docker cleanup function
         async function cleanupDocker() {
+            const cleanupBtn = event.target.closest('button');
+            addButtonPressEffect(cleanupBtn);
+            
             if (!confirm('This will remove all stopped containers and unused images. Continue?')) {
                 return;
             }
+
+            addButtonLoading(cleanupBtn);
 
             try {
                 const response = await fetch('/cleanup/docker', {
@@ -584,22 +1096,33 @@
                 });
 
                 const result = await response.json();
+                removeButtonLoading(cleanupBtn);
 
                 if (result.success) {
+                    flashButtonSuccess(cleanupBtn);
                     alert(`Cleanup completed!\n\n${result.message}\n\nDetails:\n- Containers removed: ${result.details.containers_removed}\n- Images removed: ${result.details.images_removed}\n- Space reclaimed: ${result.details.space_reclaimed}`);
                 } else {
+                    flashButtonError(cleanupBtn);
                     alert('Cleanup failed: ' + result.error);
                 }
             } catch (error) {
+                removeButtonLoading(cleanupBtn);
+                flashButtonError(cleanupBtn);
                 alert('Cleanup error: ' + error.message);
             }
         }
 
-        // System status function
+        // Enhanced System status function
         async function showSystemStatus() {
+            const statusBtn = event.target.closest('button');
+            addButtonPressEffect(statusBtn);
+            addButtonLoading(statusBtn);
+            
             try {
                 const response = await fetch('/system/status');
                 const status = await response.json();
+                removeButtonLoading(statusBtn);
+                flashButtonSuccess(statusBtn);
 
                 let statusMessage = `Docker System Status:\n\n`;
                 statusMessage += `Containers:\n`;
@@ -619,6 +1142,8 @@
 
                 alert(statusMessage);
             } catch (error) {
+                removeButtonLoading(statusBtn);
+                flashButtonError(statusBtn);
                 alert('Failed to get system status: ' + error.message);
             }
         }
@@ -627,14 +1152,21 @@
         const ANALYTICS_API = 'https://hub-backend.satrawi.cc';
 
         async function loadAnalyticsCounters() {
+            // Add loading state
+            const githubCounter = document.getElementById('github-counter');
+            const dockerCounter = document.getElementById('docker-counter');
+            
+            githubCounter.classList.add('loading');
+            dockerCounter.classList.add('loading');
+            
             try {
                 // Try external API first
                 const response = await fetch(`${ANALYTICS_API}/stats/hub-helper`);
                 const data = await response.json();
                 
                 if (data.success) {
-                    document.getElementById('github-counter').textContent = data.github_count || 0;
-                    document.getElementById('docker-counter').textContent = data.dockerhub_count || 0;
+                    updateCounterWithAnimation('github-counter', data.github_count || 0);
+                    updateCounterWithAnimation('docker-counter', data.dockerhub_count || 0);
                     return;
                 }
             } catch (error) {
@@ -647,13 +1179,84 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    document.getElementById('github-counter').textContent = data.github_count || 0;
-                    document.getElementById('docker-counter').textContent = data.dockerhub_count || 0;
+                    updateCounterWithAnimation('github-counter', data.github_count || 0);
+                    updateCounterWithAnimation('docker-counter', data.dockerhub_count || 0);
                 }
             } catch (error) {
                 console.warn('Failed to load analytics counters:', error);
                 // Keep default values of 0
+                githubCounter.classList.remove('loading');
+                dockerCounter.classList.remove('loading');
             }
+        }
+
+        function updateCounterWithAnimation(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseInt(element.textContent) || 0;
+            
+            // Remove loading state
+            element.classList.remove('loading');
+            
+            if (currentValue !== newValue) {
+                // Add updating animation
+                element.classList.add('updating');
+                
+                // Animate number counting
+                const increment = newValue > currentValue ? 1 : -1;
+                const duration = Math.min(Math.abs(newValue - currentValue) * 150, 2000); // Max 2 seconds
+                const steps = Math.abs(newValue - currentValue);
+                const stepDuration = steps > 0 ? duration / steps : 0;
+                
+                let current = currentValue;
+                const timer = setInterval(() => {
+                    current += increment;
+                    element.textContent = current;
+                    
+                    if (current === newValue) {
+                        clearInterval(timer);
+                        // Remove animation class after pulse completes
+                        setTimeout(() => {
+                            element.classList.remove('updating');
+                        }, 800);
+                    }
+                }, stepDuration);
+            } else {
+                // If no change, just show a subtle pulse
+                element.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+
+        // Add periodic counter refresh with visual feedback
+        function startAnalyticsRefresh() {
+            setInterval(() => {
+                loadAnalyticsCounters();
+            }, 30000); // Refresh every 30 seconds
+        }
+
+        // Enhanced initial load with staggered animation
+        function initializeCounters() {
+            const githubCounter = document.getElementById('github-counter');
+            const dockerCounter = document.getElementById('docker-counter');
+            
+            // Staggered entrance animation
+            setTimeout(() => {
+                githubCounter.style.opacity = '1';
+                githubCounter.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                dockerCounter.style.opacity = '1';
+                dockerCounter.style.transform = 'translateX(0)';
+            }, 300);
+            
+            // Load actual data after entrance animation
+            setTimeout(() => {
+                loadAnalyticsCounters();
+                startAnalyticsRefresh();
+            }, 500);
         }
     </script>
 
