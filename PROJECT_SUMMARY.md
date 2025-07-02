@@ -63,11 +63,13 @@
 ## Previous Changes Made
 
 ### 1. Project Renamed
+
 - Changed from "Deploy Helper" to "Hub Helper"
 - Directory renamed from `deploy-helper` to `hub-helper`
 - All references updated in code and documentation
 
 ### 2. Port Changed
+
 - Changed from port 5000 to port 5414
 - Updated in:
   - `app.py` - Flask app runs on 5414
@@ -77,6 +79,7 @@
   - `setup.sh` - All references updated
 
 ### 3. GitHub Theme Applied
+
 - **Color Scheme**: Dark theme matching GitHub's design
   - Primary background: `#0d1117` (GitHub's dark background)
   - Secondary background: `#21262d` (GitHub's darker surfaces)
@@ -103,12 +106,14 @@
   - Consistent use of GitHub and Docker Hub brand colors
 
 ### 4. Enhanced UI Features
+
 - **Project Cards**: Better visual feedback with GitHub-style hover effects
 - **Status Badges**: Improved visibility for Git and Docker status
 - **Form Styling**: All inputs and forms styled to match GitHub
 - **Responsive Design**: Maintained Bootstrap responsiveness with custom GitHub styling
 
 ### 5. Files Updated
+
 1. `README.md` - Project name, port, and URLs
 2. `app.py` - Port configuration
 3. `docker-compose.yml` - Service name and port mapping
@@ -120,16 +125,19 @@
 ## Quick Start
 
 1. **Navigate to the project**:
+
    ```bash
    cd /home/toto/hub-helper
    ```
 
 2. **Run the setup script**:
+
    ```bash
    ./setup.sh
    ```
 
 3. **Or manually start**:
+
    ```bash
    docker-compose up -d --build
    ```
@@ -138,6 +146,7 @@
    Open your browser and go to `http://localhost:5414`
 
 ## Key Features Maintained
+
 - ✅ GitHub and Docker Hub authentication
 - ✅ Project discovery from mounted directory
 - ✅ One-click deployment to both platforms
@@ -147,6 +156,7 @@
 - ✅ Session-based security
 
 ## New Visual Identity
+
 - 🎨 GitHub's official dark theme
 - 🚀 Professional developer-focused design
 - 📱 Responsive design with GitHub's component library styling

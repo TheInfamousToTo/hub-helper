@@ -7,6 +7,7 @@
 ## ✨ What's New in v1.1.2
 
 ### 🎮 Enhanced Navbar Button Animations
+
 - **Premium button effects** with modern hover animations (lift, ripple, scale)
 - **Loading state feedback** with visual spinners for async operations
 - **Success/error flash feedback** with color-coded button responses
@@ -15,12 +16,14 @@
 - **Staggered entrance animations** for sequential button appearance
 
 ### 🔄 Improved Button Functionality
+
 - **Refresh Button**: Enhanced with loading state during page reload
 - **Cleanup Button**: Visual feedback during Docker cleanup operations
 - **Status Button**: Loading animation while fetching system information
 - **Logout Button**: Smooth transition animation before redirect
 
 ### 🎨 Visual Design Enhancements
+
 - **Glass morphism navbar** with translucent background and backdrop blur
 - **Gradient button backgrounds** with subtle overlay effects
 - **Animated background pattern** with slow-shifting colored gradient orbs
@@ -29,12 +32,14 @@
 ## ✨ Previous Features (v1.1.0)
 
 ### 📊 Global Analytics Integration
+
 - **Live deployment counters** in the navbar showing total GitHub and Docker Hub pushes across all users
 - **Real-time updates** with smooth animations after each deployment
 - **Interactive tooltips** explaining counter functionality on hover
 - **Dual-source tracking** with external API and local backup for reliability
 
 ### 🎨 Premium Animation System
+
 - **Modern hover effects** with lift, scale, and shimmer animations
 - **Floating counters** with gentle continuous motion
 - **Multi-color pulse animations** during counter updates
@@ -42,6 +47,7 @@
 - **Hardware-accelerated** animations for smooth 60fps performance
 
 ### 🛠️ Enhanced Features
+
 - **Fixed double-counting** issues for accurate analytics
 - **Automatic refresh** every 30 seconds with visual feedback
 - **Debug endpoints** for troubleshooting analytics
@@ -114,6 +120,7 @@ The script will prompt you for your GitHub OAuth credentials.
 ## 🎨 New User Interface Features
 
 ### Analytics Counters
+
 - **Location**: Top-right corner of the navbar
 - **Functionality**: Shows total deployments across all Hub Helper users
 - **GitHub Counter**: Displays total GitHub pushes with GitHub icon
@@ -122,6 +129,7 @@ The script will prompt you for your GitHub OAuth credentials.
 - **Real-time Updates**: Counters update automatically after deployments
 
 ### Modern Animations
+
 - **Hover Effects**: Counters lift and scale when you hover over them
 - **Floating Motion**: Gentle floating animation for visual appeal
 - **Shimmer Effect**: Light sweep across counters on hover
@@ -129,6 +137,7 @@ The script will prompt you for your GitHub OAuth credentials.
 - **Loading States**: Elegant animations while fetching data
 
 ### Visual Feedback
+
 - **Color Coding**: GitHub (white), Docker Hub (blue) themed hover states
 - **Smooth Transitions**: All animations use smooth CSS transitions
 - **Performance**: Hardware-accelerated for 60fps smooth motion
