@@ -1316,15 +1316,24 @@
     <!-- Footer -->
     <footer class="mt-5 py-4" style="background-color: #21262d; border-top: 1px solid #30363d;">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-2 mb-md-0">
                     <p class="mb-0 text-muted">
                         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Hub Helper" style="width: 16px; height: 16px; margin-right: 0.5rem;">
                         Hub Helper
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="mb-0 text-muted">
+                    <div class="d-flex justify-content-md-end align-items-center gap-3">
+                        <!-- Donation Buttons -->
+                        <a href="https://buymeacoffee.com/theinfamoustoto" target="_blank" rel="noopener" class="btn btn-outline-warning btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500;">
+                            <i class="fas fa-mug-hot me-1" style="color: #d29922;"></i> Buy Me a Coffee
+                        </a>
+                        <a href="https://ko-fi.com/theinfamoustoto" target="_blank" rel="noopener" class="btn btn-outline-info btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500;">
+                            <i class="fas fa-coffee me-1" style="color: #58a6ff;"></i> Ko-fi
+                        </a>
+                    </div>
+                    <p class="mb-0 text-muted mt-2">
                         <small>Version 1.0 | Automate your deployments</small>
                     </p>
                 </div>
