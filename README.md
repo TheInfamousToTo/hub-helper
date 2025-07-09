@@ -373,7 +373,15 @@ hub-helper/
 
 ## Changelog
 
-### v1.1.3 - Health Check Fix (Latest)
+### v1.1.4 - Sponsorship Integration (Latest)
+
+- **Added comprehensive sponsorship support** - GitHub Sponsors, Buy Me a Coffee, Ko-fi, and PayPal integration
+- **Enhanced navbar with sponsor dropdown** - Easy access to all sponsorship options with animated heart icon
+- **Updated footer with donation links** - Multiple sponsorship platforms available in both main and login pages
+- **Improved README documentation** - Added dedicated sponsorship section with beautiful badges
+- **Modern UI enhancements** - Animated sponsorship buttons with heartbeat effects and hover animations
+
+### v1.1.3 - Health Check Fix
 
 - **Fixed critical health endpoint bug** - Resolved JSON serialization error causing 500 Internal Server Error
 - **Improved health diagnostics** - Health endpoint now properly returns JSON response instead of HTML error page
@@ -402,6 +410,37 @@ hub-helper/
 ## License
 
 MIT License. See LICENSE for details.
+
+## Support This Project ❤️
+
+If you find Hub Helper useful, please consider supporting its development:
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Sponsor-ff69b4?style=for-the-badge&logo=github)](https://github.com/sponsors/TheInfamousToTo)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/theinfamoustoto)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/theinfamoustoto)
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/alsatrawi)
+
+### 🌟 Sponsorship Tiers & Benefits
+
+**🎯 $5/month** - Get a Sponsor badge on your profile  
+**📧 $10/month** - Weekly newsletter with project updates  
+**🏆 $25/month** - Logo/name in project README + private repo access + community chat  
+**🎥 $30/month** - Access to exclusive videos, screencasts, and tutorials  
+**💼 $100/month** - Logo on project website + pre-release builds + priority bug reports  
+**🏢 $500/month** - Company license for commercial use  
+**🤝 $1,000/month** - Direct support via your company chat app  
+
+Your support helps maintain and improve this tool for the developer community! 🚀
+
+### Why Support?
+
+- 🔧 **Continuous Development** - Regular updates and new features
+- 🐛 **Bug Fixes** - Quick resolution of issues and improvements
+- 📚 **Documentation** - Better guides and tutorials
+- 🌟 **New Features** - Community-requested enhancements
+- 💡 **Innovation** - Research and development of cutting-edge deployment tools
+
+Every contribution, no matter how small, makes a difference! Thank you for your support! 🙏
 
 ## Contributing
 

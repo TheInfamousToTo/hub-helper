@@ -644,6 +644,57 @@
             transform: translateX(-20px);
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
+        
+        /* Sponsor dropdown styling */
+        .dropdown-menu-dark {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dropdown-menu-dark .dropdown-item {
+            color: #e6edf3;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-menu-dark .dropdown-item:hover {
+            background-color: #30363d;
+            color: #58a6ff;
+            transform: translateX(2px);
+        }
+        
+        .dropdown-menu-dark .dropdown-item i {
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-menu-dark .dropdown-item:hover i {
+            transform: scale(1.1);
+        }
+        
+        /* Sponsor button styling */
+        .btn-outline-warning {
+            border-color: #f85149;
+            color: #f85149;
+        }
+        
+        .btn-outline-warning:hover {
+            background-color: #f85149;
+            border-color: #f85149;
+            color: #fff;
+        }
+        
+        .btn-outline-warning i {
+            animation: heartbeat 2s infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.1); }
+            70% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -665,6 +716,38 @@
                         <span class="counter-number" id="docker-counter">0</span>
                     </div>
                 </div>
+                
+                <!-- Sponsorship Links -->
+                <div class="d-flex align-items-center me-3 d-none d-md-flex">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-warning dropdown-toggle" type="button" id="sponsorDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Support the project">
+                            <i class="fas fa-heart"></i> Sponsor
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="sponsorDropdown">
+                            <li>
+                                <a class="dropdown-item" href="https://github.com/sponsors/TheInfamousToTo" target="_blank">
+                                    <i class="fab fa-github me-2"></i>GitHub Sponsors
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://buymeacoffee.com/theinfamoustoto" target="_blank">
+                                    <i class="fas fa-coffee me-2"></i>Buy Me a Coffee
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://ko-fi.com/theinfamoustoto" target="_blank">
+                                    <i class="fas fa-donate me-2"></i>Ko-fi
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://paypal.me/alsatrawi" target="_blank">
+                                    <i class="fab fa-paypal me-2"></i>PayPal
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
                 <button class="btn btn-outline-light me-2" onclick="handleRefreshClick()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
@@ -1317,24 +1400,39 @@
     <footer class="mt-5 py-4" style="background-color: #21262d; border-top: 1px solid #30363d;">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-6 mb-2 mb-md-0">
-                    <p class="mb-0 text-muted">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <p class="mb-2 text-muted">
                         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Hub Helper" style="width: 16px; height: 16px; margin-right: 0.5rem;">
-                        Hub Helper
+                        <strong>Hub Helper</strong>
+                    </p>
+                    <p class="mb-0 text-muted">
+                        <small>Streamline your GitHub & Docker Hub deployments</small>
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <div class="d-flex justify-content-md-end align-items-center gap-3">
-                        <!-- Donation Buttons -->
-                        <a href="https://buymeacoffee.com/theinfamoustoto" target="_blank" rel="noopener" class="btn btn-outline-warning btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500;">
-                            <i class="fas fa-mug-hot me-1" style="color: #d29922;"></i> Buy Me a Coffee
+                    <div class="mb-2">
+                        <small class="text-muted">❤️ Support this project:</small>
+                    </div>
+                    <div class="d-flex justify-content-md-end align-items-center gap-2 flex-wrap">
+                        <!-- GitHub Sponsors -->
+                        <a href="https://github.com/sponsors/TheInfamousToTo" target="_blank" rel="noopener" class="btn btn-outline-light btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500; font-size: 0.75rem;">
+                            <i class="fab fa-github me-1" style="color: #e6edf3;"></i> Sponsor
                         </a>
-                        <a href="https://ko-fi.com/theinfamoustoto" target="_blank" rel="noopener" class="btn btn-outline-info btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500;">
-                            <i class="fas fa-coffee me-1" style="color: #58a6ff;"></i> Ko-fi
+                        <!-- Buy Me a Coffee -->
+                        <a href="https://buymeacoffee.com/theinfamoustoto" target="_blank" rel="noopener" class="btn btn-outline-warning btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500; font-size: 0.75rem;">
+                            <i class="fas fa-coffee me-1" style="color: #d29922;"></i> Coffee
+                        </a>
+                        <!-- Ko-fi -->
+                        <a href="https://ko-fi.com/theinfamoustoto" target="_blank" rel="noopener" class="btn btn-outline-info btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500; font-size: 0.75rem;">
+                            <i class="fas fa-donate me-1" style="color: #58a6ff;"></i> Ko-fi
+                        </a>
+                        <!-- PayPal -->
+                        <a href="https://paypal.me/alsatrawi" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm d-flex align-items-center" style="border-radius: 20px; font-weight: 500; font-size: 0.75rem;">
+                            <i class="fab fa-paypal me-1" style="color: #0070ba;"></i> PayPal
                         </a>
                     </div>
                     <p class="mb-0 text-muted mt-2">
-                        <small>Version 1.0 | Automate your deployments</small>
+                        <small>Version 1.1.3 | Open Source ❤️</small>
                     </p>
                 </div>
             </div>
