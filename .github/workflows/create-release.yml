@@ -1,0 +1,135 @@
+name: Create Release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'version'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Check if version file changed
+        id: check
+        run: |
+          if git diff HEAD~1 HEAD --name-only | grep -q "^version$"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Version file has changed"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "Version file has not changed"
+          fi
+      
+      - name: Read version
+        id: version
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          VERSION=$(cat version | tr -d '\n')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Creating release for version: $VERSION"
+      
+      - name: Generate changelog
+        id: changelog
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          # Create a comprehensive changelog based on recent commits and version
+          case "$VERSION" in
+            "v1.2.0")
+              CHANGELOG=$(cat << 'EOF'
+          ## 🚀 Hub Helper v1.2.0 - Enhanced Deployment Automation
+          
+          This release brings improved deployment automation, enhanced user interface, and advanced analytics features.
+          
+          ### ✨ New Features
+          
+          - **📊 Global Analytics Dashboard**: Real-time deployment tracking with live counters
+          - **🔐 Enhanced Authentication**: Persistent authentication with secure credential encryption
+          - **🎨 Modern UI**: Sleek interface with glass morphism design and animations
+          - **🔄 Improved Deployment**: Streamlined GitHub and Docker Hub integration
+          - **📈 Analytics API**: Integration with external analytics backend
+          
+          ### 🔧 Technical Improvements
+          
+          - **⚡ Performance Optimization**: Faster deployment processes
+          - **🛡️ Security Enhancements**: Improved credential handling and session management
+          - **📱 Responsive Design**: Better mobile and tablet experience
+          - **🔍 Error Handling**: Enhanced error reporting and user feedback
+          - **📊 Monitoring**: Real-time deployment statistics and tracking
+          
+          ### 🔄 Migration & Compatibility
+          
+          - **✅ Zero Breaking Changes**: Existing configurations continue to work
+          - **🔄 Automatic Updates**: Seamless upgrade process for existing deployments
+          - **📦 Docker Improvements**: Enhanced containerization and deployment options
+          
+          ### 🛠️ Development Workflow
+          
+          **For Production Deployment:**
+          1. Configure your GitHub and Docker Hub credentials
+          2. Deploy using the web interface
+          3. Monitor deployment progress with real-time analytics
+          
+          ### 🙏 Acknowledgments
+          
+          This release significantly improves the deployment automation experience with enhanced analytics and user interface improvements.
+          
+          ---
+          
+          **Full Changelog**: [View all changes](https://github.com/TheInfamousToTo/hub-helper/compare/v1.1.4...v1.2.0)
+          EOF
+              )
+              ;;
+            *)
+              # Generic changelog for other versions
+              CHANGELOG="## Release $VERSION
+
+          Automatically generated release from version file update.
+
+          See commit history for detailed changes.
+          
+          **Full Changelog**: [View all changes](https://github.com/TheInfamousToTo/hub-helper/commits/$VERSION)"
+              ;;
+          esac
+          
+          # Save changelog to output (GitHub Actions multiline string)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Check if tag exists
+        id: check-tag
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git tag -l | grep -q "^$VERSION$"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $VERSION already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag $VERSION does not exist"
+          fi
+      
+      - name: Create GitHub Release
+        if: steps.check.outputs.changed == 'true' && steps.check-tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: "Hub Helper ${{ steps.version.outputs.version }}"
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
