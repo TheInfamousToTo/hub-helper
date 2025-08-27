@@ -1,0 +1,159 @@
+name: 📚 Documentation Issue
+description: Report an issue with documentation or request documentation improvements
+title: "[DOCS] "
+labels: ["documentation", "needs-triage"]
+assignees:
+  - TheInfamousToTo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve Hub Helper's documentation! Whether it's a typo, missing information, or unclear instructions.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting a documentation issue
+      options:
+        - label: I have searched existing issues to ensure this documentation issue hasn't been reported already
+          required: true
+        - label: I have checked multiple documentation sources (README, SETUP_GUIDE, etc.)
+          required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: Which type of documentation is affected?
+      options:
+        - README.md
+        - SETUP_GUIDE.md
+        - PROJECT_SUMMARY.md
+        - Code Comments
+        - API Documentation
+        - Docker Documentation
+        - Environment Variables Documentation
+        - Installation Instructions
+        - Usage Examples
+        - Troubleshooting Guide
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - Missing Information
+        - Incorrect Information
+        - Unclear/Confusing Information
+        - Outdated Information
+        - Typo/Grammar Error
+        - Broken Link
+        - Missing Examples
+        - Formatting Issue
+        - Translation Issue
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Where exactly is the documentation issue? Please be specific.
+      placeholder: |
+        - File: README.md
+        - Section: "Quick Start"
+        - Line number (if applicable): 42
+        - URL (if applicable): https://github.com/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content
+      description: What does the documentation currently say? (copy/paste the problematic text)
+      placeholder: |
+        Copy and paste the current text that has issues...
+      render: markdown
+
+  - type: textarea
+    id: expected-content
+    attributes:
+      label: Expected/Suggested Content
+      description: What should the documentation say instead?
+      placeholder: |
+        Provide your suggested improvement, correction, or addition...
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why is this documentation change needed? What problem does it solve?
+      placeholder: |
+        Explain why this documentation issue is important and how it affects users...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user-impact
+    attributes:
+      label: User Impact
+      description: How does this documentation issue affect users?
+      options:
+        - Blocks new users from getting started
+        - Causes confusion during setup
+        - Leads to incorrect configuration
+        - Makes troubleshooting difficult
+        - Affects advanced usage scenarios
+        - Minor inconvenience
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about this documentation issue
+      placeholder: |
+        - Screenshots of the issue
+        - Links to related documentation
+        - User feedback or questions that highlighted this issue
+        - Suggestions for related improvements
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Related Documentation Areas
+      description: Are there other documentation areas that might need similar updates? (Check all that apply)
+      options:
+        - label: Installation/Setup Instructions
+        - label: Configuration Examples
+        - label: Environment Variables
+        - label: Docker Configuration  
+        - label: GitHub Integration Setup
+        - label: Docker Hub Integration Setup
+        - label: Authentication Guide
+        - label: Troubleshooting Section
+        - label: API Documentation
+        - label: Development/Contributing Guide
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you willing to help improve the documentation?
+      options:
+        - label: I would be willing to submit a pull request to fix this
+        - label: I would be willing to review documentation changes
+        - label: I would be willing to test updated documentation
+        - label: I can provide additional examples or use cases

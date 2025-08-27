@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/TheInfamousToTo/hub-helper/discussions
+    about: Ask questions, share ideas, and discuss Hub Helper with the community
+  - name: 📖 Documentation
+    url: https://github.com/TheInfamousToTo/hub-helper/blob/main/README.md
+    about: Check out the README and setup documentation
+  - name: 🚀 Quick Setup Guide  
+    url: https://github.com/TheInfamousToTo/hub-helper/blob/main/SETUP_GUIDE.md
+    about: Step-by-step guide to get Hub Helper up and running

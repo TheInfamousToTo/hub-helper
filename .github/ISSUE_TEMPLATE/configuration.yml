@@ -1,0 +1,200 @@
+name: 🔧 Configuration Issue
+description: Report issues with Hub Helper setup, configuration, or environment variables
+title: "[CONFIG] "
+labels: ["configuration", "setup", "needs-triage"]
+assignees:
+  - TheInfamousToTo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Having trouble with Hub Helper configuration, setup, or environment variables? Let us help you get it working properly.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting a configuration issue
+      options:
+        - label: I have read the SETUP_GUIDE.md documentation
+          required: true
+        - label: I have checked that all required environment variables are set
+          required: true
+        - label: I have verified my Docker and Docker Compose installation
+          required: true
+
+  - type: dropdown
+    id: config-area
+    attributes:
+      label: Configuration Area
+      description: Which area of configuration is causing issues?
+      options:
+        - Environment Variables (.env file)
+        - Docker Compose Configuration
+        - GitHub OAuth App Setup
+        - Docker Hub Authentication
+        - Projects Path Configuration
+        - Analytics API Configuration
+        - SSL/TLS Configuration
+        - Network/Port Configuration
+        - Volume/Storage Configuration
+        - Container Startup Issues
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: setup-stage
+    attributes:
+      label: Setup Stage
+      description: At which stage are you experiencing the configuration issue?
+      options:
+        - Initial installation
+        - Environment file creation
+        - Docker Compose startup
+        - First-time authentication
+        - Project discovery
+        - First deployment attempt
+        - Runtime configuration
+        - After working previously
+        - During updates/upgrades
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: configuration-details
+    attributes:
+      label: Current Configuration
+      description: Share your current configuration (remove sensitive information)
+      placeholder: |
+        Please share relevant parts of your configuration:
+        
+        Docker Compose version:
+        
+        Environment variables (remove secrets):
+        - PROJECTS_PATH=
+        - GITHUB_CLIENT_ID=present/missing
+        - GITHUB_CLIENT_SECRET=present/missing  
+        - ANALYTICS_API=
+        
+        Docker Compose excerpt (docker-compose.yml):
+        ```yaml
+        # Paste relevant sections here
+        ```
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-symptoms
+    attributes:
+      label: Error Symptoms
+      description: What exactly is going wrong? What error messages do you see?
+      placeholder: |
+        Describe the specific issues you're experiencing:
+        - Error messages in web interface
+        - Container startup failures  
+        - Authentication failures
+        - Configuration validation errors
+        - Connection issues
+    validations:
+      required: true
+
+  - type: textarea
+    id: startup-logs
+    attributes:
+      label: Startup Logs
+      description: Include logs from container startup and application initialization
+      placeholder: |
+        Run: docker-compose up
+        Or: docker-compose logs hub-helper
+        
+        Paste the startup logs here:
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment-details
+    attributes:
+      label: Environment Details
+      description: Details about your environment and system
+      placeholder: |
+        - Operating System: 
+        - Docker version: (docker --version)
+        - Docker Compose version: (docker-compose --version)
+        - Available disk space: 
+        - Network setup: (home network, corporate, VPN, etc.)
+        - Firewall or security restrictions:
+        - Running in VM or container: Yes/No
+    validations:
+      required: true
+
+  - type: textarea
+    id: github-oauth-setup
+    attributes:
+      label: GitHub OAuth App Details (if applicable)
+      description: If your issue involves GitHub authentication, provide OAuth app details
+      placeholder: |
+        - GitHub OAuth App created: Yes/No
+        - Homepage URL set to: 
+        - Authorization callback URL set to:
+        - Client ID configured in environment: Yes/No
+        - Client Secret configured in environment: Yes/No
+        - OAuth App type: Personal/Organization
+        - Any error messages during OAuth flow:
+
+  - type: textarea
+    id: docker-hub-details
+    attributes:
+      label: Docker Hub Details (if applicable)  
+      description: If your issue involves Docker Hub, provide relevant details
+      placeholder: |
+        - Docker Hub username:
+        - Account type: Personal/Organization
+        - Two-factor authentication enabled: Yes/No
+        - Using access tokens instead of password: Yes/No
+        - Can manually push to Docker Hub: Yes/No
+        - Any error messages during Docker Hub operations:
+
+  - type: checkboxes
+    id: attempted-solutions
+    attributes:
+      label: Attempted Solutions
+      description: What have you already tried? (Check all that apply)
+      options:
+        - label: Recreated .env file from scratch
+        - label: Restarted Docker containers
+        - label: Cleared Docker images and volumes
+        - label: Verified environment variable syntax
+        - label: Checked file permissions
+        - label: Tested with different ports
+        - label: Verified GitHub OAuth App settings
+        - label: Tested Docker Hub credentials manually
+        - label: Reviewed all documentation
+        - label: Compared with working examples
+
+  - type: textarea
+    id: working-before
+    attributes:
+      label: Previous Working State
+      description: Was this configuration working before? What changed?
+      placeholder: |
+        - Was Hub Helper working previously? When did it stop?
+        - What changes were made recently?
+        - Different versions, updates, or environment changes?
+        - Changes to external services (GitHub, Docker Hub)?
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information about your configuration issue
+      placeholder: |
+        - Corporate network or proxy requirements
+        - Special Docker setup or constraints  
+        - Custom modifications to configuration files
+        - Integration requirements with other tools
+        - Screenshots of configuration interfaces
+        - Any workarounds that partially work

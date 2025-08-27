@@ -1,0 +1,180 @@
+name: 🚀 Deployment Issue
+description: Report issues related to GitHub or Docker Hub deployments
+title: "[DEPLOYMENT] "
+labels: ["deployment", "needs-triage"]
+assignees:
+  - TheInfamousToTo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report issues specifically related to GitHub pushes, Docker Hub deployments, or the deployment process in Hub Helper.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting a deployment issue
+      options:
+        - label: I have verified my GitHub/Docker Hub credentials are correct
+          required: true
+        - label: I have checked the application logs for error messages
+          required: true
+        - label: I have searched existing issues for similar deployment problems
+          required: true
+
+  - type: dropdown
+    id: deployment-target
+    attributes:
+      label: Deployment Target
+      description: Which deployment target is affected?
+      options:
+        - GitHub only
+        - Docker Hub only
+        - Both GitHub and Docker Hub
+        - Not sure / Both attempted
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-stage
+    attributes:
+      label: Deployment Stage
+      description: At which stage does the deployment fail?
+      options:
+        - Authentication (GitHub OAuth or Docker Hub login)
+        - Repository detection/selection
+        - Git operations (commit, push, tag)
+        - Docker build process
+        - Docker push to registry
+        - Version management/tagging
+        - Success but incorrect behavior
+        - Other/Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: project-details
+    attributes:
+      label: Project Details
+      description: Information about the project you're trying to deploy
+      placeholder: |
+        - Project name:
+        - Repository URL (if GitHub):
+        - Docker Hub repository (if applicable):
+        - Project type (e.g., Python Flask, Node.js, etc.):
+        - Has Dockerfile: Yes/No
+        - Has .git repository: Yes/No
+    validations:
+      required: true
+
+  - type: textarea
+    id: deployment-steps
+    attributes:
+      label: Deployment Steps Taken
+      description: Describe exactly what you did when attempting the deployment
+      placeholder: |
+        1. Opened Hub Helper web interface
+        2. Selected project: [project name]
+        3. Chose deployment targets: [GitHub/Docker Hub/Both]
+        4. Set version: [version number]
+        5. Clicked Deploy
+        6. Error occurred at: [specific step]
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-message
+    attributes:
+      label: Error Message
+      description: Copy the exact error message you received
+      placeholder: |
+        Paste the complete error message here.
+        Include stack traces if available.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Application Logs  
+      description: Include relevant logs from Hub Helper
+      placeholder: |
+        Run: docker-compose logs hub-helper
+        
+        Paste relevant log entries here, especially around the time of the error.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Details about your environment and configuration
+      placeholder: |
+        - Operating System: 
+        - Docker version: 
+        - Docker Compose version:
+        - Hub Helper version:
+        - GitHub OAuth App configured: Yes/No
+        - Docker Hub account type: Personal/Organization
+        - Browser used: 
+        - Any custom environment variables:
+    validations:
+      required: true
+
+  - type: textarea
+    id: previous-success
+    attributes:
+      label: Previous Success
+      description: Has this deployment worked before? When did it start failing?
+      placeholder: |
+        - Has this specific project deployed successfully before?
+        - When did deployments last work?
+        - Have you made any recent changes to your setup?
+        - Are other projects deploying successfully?
+
+  - type: checkboxes
+    id: attempted-solutions
+    attributes:
+      label: Attempted Solutions
+      description: What have you already tried to fix this issue? (Check all that apply)
+      options:
+        - label: Restarted Hub Helper container
+        - label: Re-authenticated with GitHub
+        - label: Re-authenticated with Docker Hub  
+        - label: Checked GitHub OAuth App settings
+        - label: Verified Docker Hub permissions
+        - label: Tried with a different project
+        - label: Checked Docker Hub repository exists
+        - label: Verified Git repository is properly initialized
+        - label: Checked network connectivity
+        - label: Reviewed application logs
+
+  - type: textarea
+    id: docker-info
+    attributes:
+      label: Docker Information (if applicable)
+      description: If this is a Docker Hub deployment issue, provide Docker-related details
+      placeholder: |
+        - Dockerfile location: 
+        - Base image used:
+        - Build context size:
+        - Any custom build args:
+        - Multi-stage build: Yes/No
+        - Image size (approximate):
+      render: yaml
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information about the deployment issue
+      placeholder: |
+        - Screenshots of the error
+        - Network restrictions or firewalls
+        - Corporate environment considerations
+        - Recent changes to the project or environment
+        - Any workarounds that partially work

@@ -1,0 +1,145 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Hub Helper
+title: "[FEATURE] "
+labels: ["enhancement", "feature-request"]
+assignees:
+  - TheInfamousToTo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Your ideas help make Hub Helper better for everyone.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting a feature request
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested already
+          required: true
+        - label: I have read the README.md to understand current features
+          required: true
+        - label: This feature would benefit other Hub Helper users, not just my specific use case
+          required: true
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - UI/UX Enhancement
+        - New Deployment Target (e.g., GitLab, AWS)
+        - Analytics/Reporting Feature
+        - Authentication Enhancement
+        - Docker/Container Feature
+        - API Enhancement
+        - Configuration/Setup Feature
+        - Performance Improvement
+        - Security Enhancement
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's your current pain point?
+      placeholder: |
+        Describe the problem you're trying to solve or the gap you've identified.
+        For example: "Currently, I have to manually..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your ideal solution to the problem
+      placeholder: |
+        Describe how you envision this feature working.
+        Be as detailed as possible about the user experience.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: |
+        Describe any alternative solutions you've thought about or tried.
+        This helps understand the full scope of the problem.
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases where this feature would be helpful
+      placeholder: |
+        1. Use case 1: When deploying to multiple repositories...
+        2. Use case 2: When working with large teams...
+        3. Use case 3: When integrating with CI/CD pipelines...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to your workflow?
+      options:
+        - Critical - Blocking my workflow
+        - High - Would significantly improve my workflow  
+        - Medium - Would be nice to have
+        - Low - Minor improvement
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Examples
+      description: If applicable, provide mockups, screenshots, or examples from other tools
+      placeholder: |
+        Add any visual examples, mockups, or references to similar features in other tools.
+        You can drag and drop images here.
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation Areas
+      description: Which parts of Hub Helper would need to be modified? (Check all that apply)
+      options:
+        - label: Frontend/UI (HTML, CSS, JavaScript)
+        - label: Backend/API (Python Flask)
+        - label: Docker/Container Configuration
+        - label: GitHub Integration
+        - label: Docker Hub Integration
+        - label: Authentication System
+        - label: Analytics System
+        - label: Configuration/Environment Variables
+        - label: Documentation
+        - label: Database/Storage
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, links, or information about the feature request
+      placeholder: |
+        Any additional information that would help understand or implement this feature.
+        Links to related documentation, similar tools, etc.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you willing to contribute to implementing this feature?
+      options:
+        - label: I would be willing to contribute code for this feature
+        - label: I would be willing to test this feature
+        - label: I would be willing to help with documentation
+        - label: I would be willing to provide feedback during development

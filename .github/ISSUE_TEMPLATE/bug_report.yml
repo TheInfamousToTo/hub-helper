@@ -1,0 +1,125 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior in Hub Helper
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees:
+  - TheInfamousToTo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the form below with as much detail as possible.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting a bug report
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported already
+          required: true
+        - label: I have read the README.md and SETUP_GUIDE.md documentation
+          required: true
+        - label: I am using the latest version of Hub Helper
+          required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe the bug you encountered...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Enter '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen
+      placeholder: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: A clear and concise description of what actually happened
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment-type
+    attributes:
+      label: Deployment Type
+      description: Which deployment type were you using when the bug occurred?
+      options:
+        - GitHub only
+        - Docker Hub only
+        - Both GitHub and Docker Hub
+        - Not applicable / Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please provide details about your environment
+      placeholder: |
+        - OS: (e.g., Ubuntu 22.04, Windows 11, macOS 13)
+        - Docker version: (e.g., 24.0.6)
+        - Docker Compose version: (e.g., 2.21.0)
+        - Browser: (e.g., Chrome 118, Firefox 119)
+        - Hub Helper version: (check in web interface or version file)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and Error Messages
+      description: Please include relevant logs, error messages, or screenshots
+      placeholder: |
+        Paste logs here or attach screenshots.
+        You can get logs using: docker-compose logs hub-helper
+      render: shell
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: Any additional information that might be helpful...
+
+  - type: checkboxes
+    id: components
+    attributes:
+      label: Affected Components
+      description: Which components of Hub Helper are affected? (Check all that apply)
+      options:
+        - label: Web Interface / UI
+        - label: GitHub Authentication
+        - label: Docker Hub Authentication
+        - label: GitHub Deployment
+        - label: Docker Hub Deployment
+        - label: Analytics / Counters
+        - label: Project Discovery
+        - label: Version Management
+        - label: Docker Build Process
+        - label: Configuration / Environment

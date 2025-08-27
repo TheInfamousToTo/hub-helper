@@ -1,0 +1,149 @@
+name: ❓ Question / Support
+description: Ask a question about Hub Helper usage, configuration, or get support
+title: "[QUESTION] "
+labels: ["question", "support"]
+assignees:
+  - TheInfamousToTo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about Hub Helper? Need help with setup or usage? We're here to help!
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before asking your question
+      options:
+        - label: I have read the README.md and SETUP_GUIDE.md documentation
+          required: true
+        - label: I have searched existing issues and discussions for similar questions
+          required: true
+        - label: This is a question about Hub Helper (not a bug report or feature request)
+          required: true
+
+  - type: dropdown
+    id: question-category
+    attributes:
+      label: Question Category
+      description: What category does your question fall into?
+      options:
+        - Installation and Setup
+        - Configuration and Environment Variables
+        - GitHub Integration and OAuth
+        - Docker Hub Integration
+        - Project Management and Discovery
+        - Deployment Process
+        - Authentication and Security
+        - Analytics and Counters
+        - Docker and Containerization
+        - Troubleshooting and Debugging
+        - Best Practices and Usage
+        - API and Integration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: Ask your question clearly and in detail
+      placeholder: |
+        Please provide a clear, detailed question. Include:
+        - What you're trying to achieve
+        - What you've already tried
+        - Specific areas where you need clarification
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and Background
+      description: Provide context about your setup and use case
+      placeholder: |
+        - Your environment (OS, Docker version, etc.)
+        - How you're planning to use Hub Helper
+        - Your current setup or configuration
+        - Any relevant background information
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-situation
+    attributes:
+      label: Current Situation
+      description: What have you tried so far? What's your current status?
+      placeholder: |
+        - What steps have you already taken?
+        - What's working and what isn't?
+        - Any error messages or unexpected behavior?
+        - Current roadblocks or confusion points
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency Level
+      description: How urgent is this question for your workflow?
+      options:
+        - Low - General curiosity or future planning
+        - Medium - Would help improve my current workflow
+        - High - Needed to complete current task
+        - Critical - Blocking my work completely
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected Outcome
+      description: What would a helpful answer look like to you?
+      placeholder: |
+        - What specific information would solve your question?
+        - Are you looking for step-by-step instructions?
+        - Do you need configuration examples?
+        - Are you looking for best practice recommendations?
+
+  - type: checkboxes
+    id: help-areas
+    attributes:
+      label: Areas Where You Need Help
+      description: Which specific areas do you need help with? (Check all that apply)
+      options:
+        - label: Initial installation and setup
+        - label: Environment variable configuration
+        - label: GitHub OAuth App setup
+        - label: Docker Hub authentication
+        - label: Project discovery and selection
+        - label: Deployment process understanding
+        - label: Version management and tagging
+        - label: Analytics and counter features
+        - label: Troubleshooting errors
+        - label: Performance optimization
+        - label: Security best practices
+        - label: Integration with other tools
+        - label: Advanced configuration options
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Any other relevant information or specific details
+      placeholder: |
+        - Links to relevant documentation you've reviewed
+        - Screenshots or examples that illustrate your question
+        - Specific use cases or scenarios you're considering
+        - Any constraints or requirements you have
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Community Contribution
+      description: Would you be willing to help improve Hub Helper based on your experience?
+      options:
+        - label: I would be willing to help improve documentation based on the answer
+        - label: I would be willing to share my use case to help others
+        - label: I would be willing to test new features related to this question
+        - label: I would be willing to contribute improvements once I understand better
