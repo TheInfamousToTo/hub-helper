@@ -449,3 +449,7 @@ Contributions are welcome! Please open an issue or submit a pull request for imp
 ## Acknowledgements
 
 Built with Flask, Docker, and modern web technologies to streamline the deployment workflow for developers and teams.
+
+## 📊 Repository Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/5bfb433a6933684bd90028cbfae193a923abbc2d.svg "Repobeats analytics image")
