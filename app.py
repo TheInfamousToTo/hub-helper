@@ -41,7 +41,7 @@ CREDENTIALS_FILE = os.path.join(DATA_DIR, 'credentials.json')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # Analytics configuration
-ANALYTICS_API = 'https://hub-backend.satrawi.cc'
+ANALYTICS_API = 'https://hub-backend.satrawi.com'
 LOCAL_ANALYTICS_FILE = os.path.join(DATA_DIR, 'local_analytics.json')
 
 def track_deployment_analytics(push_type):
